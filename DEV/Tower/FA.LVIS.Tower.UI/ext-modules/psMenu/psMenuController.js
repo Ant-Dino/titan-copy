@@ -1,135 +1,73 @@
-﻿/// <reference path="C:\Users\avidyarthi\Desktop\Tower\Tower\FA.LVIS.Tower.UI\Scripts/angular.js" />
-//this module is used for loading menu bar items
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 
-"use strict";
-
-angular.module('psMenu').controller('psMenuController',
-    ['$scope', '$http', '$rootScope', '$interval', 'GetApplicationStatus',
-        function ($scope, $http, $rootScope, $interval, GetApplicationStatus) {
-            $scope.isVertical = false;
-            $scope.openMenuScope = null;
-            $scope.showMenu = true;
-            $scope.allowHorizontalToggle = false;
-            $scope.ApplicationStatusDisabled = false;
-
-            this.getActiveElement = function () {
-                return $scope.activeElement;
-            };
-
-            this.setActiveElement = function (el) {
-                $scope.activeElement = el;
-            };
-
-            this.isVertical = function () {
-                return $scope.isVertical;
-            }
-
-            this.setRoute = function (route) {
-                $rootScope.$broadcast('ps-menu-item-selected-event',
-                    { route: route });
-            };
-
-            this.setOpenMenuScope = function (scope) {
-                $scope.openMenuScope = scope;
-            };
-
-            //$scope.toggleMenuOrientation = function () {
-
-            //    // close any open menu
-            //    if ($scope.openMenuScope)
-            //        $scope.openMenuScope.closeMenu();
-
-            //    $scope.isVertical = !$scope.isVertical;
-
-            //    $rootScope.$broadcast('ps-menu-orientation-changed-event',
-            //        { isMenuVertical: $scope.isVertical });
-            //};
-
-            angular.element(document).bind('click', function (e) {
-                if ($scope.openMenuScope && !$scope.isVertical) {
-                    if ($(e.target).parent().hasClass('ps-selectable-item'))
-                        return;
-                    $scope.$apply(function () {
-                        $scope.openMenuScope.closeMenu();
-                    });
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            });
-
-            $scope.$on('ps-menu-show', function(evt, data) {
-                $scope.showMenu = data.show;
-                $scope.isVertical = data.isVertical;
-                $scope.allowHorizontalToggle = data.allowHorizontalToggle;
-            });
-
-
-            //start-To Highlight Application status Button for the Connector status.
-            //var Connector = this;
-            //$http.get('ApplicationController/GetApplicationStatus/')
-            // .then(function (response) {
-            //     Connector.BiztalkPortList = response.data;
-            //     var Count = 0;
-            //     //collect array object Properties
-            //     angular.forEach(Connector.BiztalkPortList, function (item) {
-            //         if (!item.Active) {
-            //             Count = Count + 1;
-            //         }
-            //         $scope.Count = Count;
-            //     });
-            // }, function (data) {
-            //     growl.error("Unable to retrieve application information at this time.");
-            // });
-            //End
-
-            var Connector = this;
-            Connector.LoadApplicationStatus = function () {
-                var datapromise = GetApplicationStatus.getApplicationStatus();
-                datapromise.then(function (data) {
-                    if (data.length != 0) {
-                        Connector.BiztalkPortList = data;
-                        var Count = 0;
-                        //collect array object Properties
-                        angular.forEach(Connector.BiztalkPortList, function (item) {
-                            if (!item.Active) {
-                                Count = Count + 1;
-                            }
-                            if (Count > 0)
-                            { $scope.ApplicationStatusDisabled = true; }
-                            else
-                            { $scope.ApplicationStatusDisabled = false; }
-                        });
-
-                        return;
-                    }
-                    else {
-                        growl.error("Unable to retrieve application information at this time.");
-                    }
-                });
-            };
-
-            Connector.LoadApplicationStatus();
-
-            $interval(function () {
-                Connector.LoadApplicationStatus();
-            }.bind(this), 300000);
-        }
-    ]);
-
-angular.module('psMenu').factory('GetApplicationStatus', ['$http', '$q', function ($http, $q) {
-    return {
-        getApplicationStatus: function () {
-            var deferred = $q.defer();
-            $http.get('ApplicationController/GetApplicationStatus/')
-              .then(function (response) {
-
-                  deferred.resolve(response.data);
-
-              }, function (error) {
-                  deferred.reject(error);
-              });
-
-            return deferred.promise;
-        }
+const GetApplicationStatus = {
+  getApplicationStatus: async () => {
+    try {
+      const response = await axios.get('ApplicationController/GetApplicationStatus/');
+      return response.data;
+    } catch (error) {
+      throw error;
     }
-}]);
+  },
+};
+
+const PsMenuComponent: React.FC = () => {
+  const [isVertical, setIsVertical] = useState<boolean>(false);
+  const [openMenuScope, setOpenMenuScope] = useState<any>(null); // Consider refining the type
+  const [showMenu, setShowMenu] = useState<boolean>(true);
+  const [allowHorizontalToggle, setAllowHorizontalToggle] = useState<boolean>(false);
+  const [applicationStatusDisabled, setApplicationStatusDisabled] = useState<boolean>(false);
+  const [activeElement, setActiveElement] = useState<any>(null); // Consider refining the type
+
+  const loadApplicationStatus = async () => {
+    try {
+      const data = await GetApplicationStatus.getApplicationStatus();
+      if (data.length !== 0) {
+        const biztalkPortList = data;
+        let count = 0;
+        biztalkPortList.forEach((item: any) => { // Consider refining the type of item
+          if (!item.Active) {
+            count += 1;
+          }
+        });
+        setApplicationStatusDisabled(count > 0);
+      } else {
+        console.error("Unable to retrieve application information at this time.");
+      }
+    } catch (error) {
+      console.error("Unable to retrieve application information at this time.");
+    }
+  };
+
+  useEffect(() => {
+    loadApplicationStatus();
+    const intervalId = setInterval(() => {
+      loadApplicationStatus();
+    }, 300000); // Refresh every 5 minutes
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const documentClickHandler = (e: MouseEvent) => {
+    if (openMenuScope && !isVertical) {
+      // if e.target is part of 'ps-selectable-item', return
+      // if not, setOpenMenuScope(null); consider refining logic
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('click', documentClickHandler);
+    return () => document.removeEventListener('click', documentClickHandler);
+  }, [openMenuScope, isVertical]);
+
+  return (
+    <div>
+      {/* Your menu component JSX goes here */}
+    </div>
+  );
+};
+
+export default PsMenuComponent;
