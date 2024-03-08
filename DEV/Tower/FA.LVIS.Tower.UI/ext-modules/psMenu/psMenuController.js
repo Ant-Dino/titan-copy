@@ -1,135 +1,87 @@
-﻿/// <reference path="C:\Users\avidyarthi\Desktop\Tower\Tower\FA.LVIS.Tower.UI\Scripts/angular.js" />
-//this module is used for loading menu bar items
+// React component converted from the AngularJS controller
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-"use strict";
+// Defining types for the state
+interface IBiztalkPort {
+  Active: boolean;
+}
 
-angular.module('psMenu').controller('psMenuController',
-    ['$scope', '$http', '$rootScope', '$interval', 'GetApplicationStatus',
-        function ($scope, $http, $rootScope, $interval, GetApplicationStatus) {
-            $scope.isVertical = false;
-            $scope.openMenuScope = null;
-            $scope.showMenu = true;
-            $scope.allowHorizontalToggle = false;
-            $scope.ApplicationStatusDisabled = false;
+const defaultBiztalkPorts: IBiztalkPort[] = [];
 
-            this.getActiveElement = function () {
-                return $scope.activeElement;
-            };
+const PsMenuComponent: React.FC = () => {
+  const [isVertical, setIsVertical] = useState(false);
+  const [showMenu, setShowMenu] = useState(true);
+  const [allowHorizontalToggle, setAllowHorizontalToggle] = useState(false);
+  const [applicationStatusDisabled, setApplicationStatusDisabled] = useState(false);
+  const [biztalkPortList, setBiztalkPortList] = useState<IBiztalkPort[]>(defaultBiztalkPorts);
 
-            this.setActiveElement = function (el) {
-                $scope.activeElement = el;
-            };
+  // Mocking the event listener similar to `angular.element(document).bind()` in AngularJS
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Your logic to handle click outside here
+      console.log('Clicked outside: ', event);
+    };
 
-            this.isVertical = function () {
-                return $scope.isVertical;
-            }
+    document.addEventListener('click', handleClickOutside);
 
-            this.setRoute = function (route) {
-                $rootScope.$broadcast('ps-menu-item-selected-event',
-                    { route: route });
-            };
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
-            this.setOpenMenuScope = function (scope) {
-                $scope.openMenuScope = scope;
-            };
+  // Replacing the AngularJS $interval service
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadApplicationStatus();
+    }, 300000); // Updating every 5 minutes
 
-            //$scope.toggleMenuOrientation = function () {
+    return () => clearInterval(interval);
+  }, []);
 
-            //    // close any open menu
-            //    if ($scope.openMenuScope)
-            //        $scope.openMenuScope.closeMenu();
-
-            //    $scope.isVertical = !$scope.isVertical;
-
-            //    $rootScope.$broadcast('ps-menu-orientation-changed-event',
-            //        { isMenuVertical: $scope.isVertical });
-            //};
-
-            angular.element(document).bind('click', function (e) {
-                if ($scope.openMenuScope && !$scope.isVertical) {
-                    if ($(e.target).parent().hasClass('ps-selectable-item'))
-                        return;
-                    $scope.$apply(function () {
-                        $scope.openMenuScope.closeMenu();
-                    });
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            });
-
-            $scope.$on('ps-menu-show', function(evt, data) {
-                $scope.showMenu = data.show;
-                $scope.isVertical = data.isVertical;
-                $scope.allowHorizontalToggle = data.allowHorizontalToggle;
-            });
-
-
-            //start-To Highlight Application status Button for the Connector status.
-            //var Connector = this;
-            //$http.get('ApplicationController/GetApplicationStatus/')
-            // .then(function (response) {
-            //     Connector.BiztalkPortList = response.data;
-            //     var Count = 0;
-            //     //collect array object Properties
-            //     angular.forEach(Connector.BiztalkPortList, function (item) {
-            //         if (!item.Active) {
-            //             Count = Count + 1;
-            //         }
-            //         $scope.Count = Count;
-            //     });
-            // }, function (data) {
-            //     growl.error("Unable to retrieve application information at this time.");
-            // });
-            //End
-
-            var Connector = this;
-            Connector.LoadApplicationStatus = function () {
-                var datapromise = GetApplicationStatus.getApplicationStatus();
-                datapromise.then(function (data) {
-                    if (data.length != 0) {
-                        Connector.BiztalkPortList = data;
-                        var Count = 0;
-                        //collect array object Properties
-                        angular.forEach(Connector.BiztalkPortList, function (item) {
-                            if (!item.Active) {
-                                Count = Count + 1;
-                            }
-                            if (Count > 0)
-                            { $scope.ApplicationStatusDisabled = true; }
-                            else
-                            { $scope.ApplicationStatusDisabled = false; }
-                        });
-
-                        return;
-                    }
-                    else {
-                        growl.error("Unable to retrieve application information at this time.");
-                    }
-                });
-            };
-
-            Connector.LoadApplicationStatus();
-
-            $interval(function () {
-                Connector.LoadApplicationStatus();
-            }.bind(this), 300000);
-        }
-    ]);
-
-angular.module('psMenu').factory('GetApplicationStatus', ['$http', '$q', function ($http, $q) {
-    return {
-        getApplicationStatus: function () {
-            var deferred = $q.defer();
-            $http.get('ApplicationController/GetApplicationStatus/')
-              .then(function (response) {
-
-                  deferred.resolve(response.data);
-
-              }, function (error) {
-                  deferred.reject(error);
-              });
-
-            return deferred.promise;
-        }
+  const loadApplicationStatus = async () => {
+    try {
+      const response = await axios.get('ApplicationController/GetApplicationStatus/');
+      const data = response.data;
+      if (data.length !== 0) {
+        let count = 0;
+        // Process each item to check if it's not active and increment the count
+        data.forEach((item: IBiztalkPort) => {
+          if (!item.Active) {
+            count += 1;
+          }
+        });
+        setBiztalkPortList(data);
+        setApplicationStatusDisabled(count > 0);
+      } else {
+        // Handle error case here
+        console.error("Unable to retrieve application information at this time.");
+      }
+    } catch (error) {
+      // Handle error here
+      console.error("Error fetching application status: ", error);
     }
-}]);
+  };
+
+  // Call the function to load application status when the component mounts
+  useEffect(() => {
+    loadApplicationStatus();
+  }, []);
+
+  // Function to simulate AngularJS $rootScope.$broadcast for setting route
+  const setRoute = (route: string) => {
+    // Implement your logic to handle route change
+    console.log('Route selected: ', route);
+  };
+
+  return (
+    <div>
+      {/* Component UI goes here */}
+      <h1>PS Menu Component</h1>
+      {/* Example usage */}
+      <button onClick={() => setRoute('/some-route')}>Change Route</button>
+    </div>
+  );
+};
+
+export default PsMenuComponent;
