@@ -1,128 +1,64 @@
-﻿"use strict";
-
-var app = angular.module('MessageLogModule', ['ngAnimate', 'ui.grid', 'ui.grid.grouping', 'ui.grid.moveColumns', 'ui.grid.selection', 'ui.bootstrap', 'ui.grid.edit', 'angular-confirm', 'angularjs-datetime-picker', 'angular-growl', 'ui.grid.expandable']);
-
-app.service('modalProvider', ['$uibModal', function ($uibModal) {
-
-    this.openPopupModal = function (Serviceid) {
-        var modalInstance = $uibModal.open({
-            templateUrl: 'ext-modules/psReporting/MessageLogDetails.html',
-            controller: 'MessageLogModuleCtrl',
-            controllerAs: 'vmTest',
-            resolve: {
-                Requestid: function () {
-                    return Serviceid;
-                }
-            }
-        });
-    }
-}]);
-
-
-angular.module('MessageLogModule').controller('MessageLogModuleCtrl', ['$http', '$rootScope', '$scope', '$window', '$location', '$anchorScroll', '$uibModalInstance', 'Requestid', '$uibModal',
-function MessageLogModuleCtrl($http, $rootScope, $scope, $window, $location, $anchorScroll, $uibModalInstance, Requestid, $uibModal) {
-
-    var vmTest = this;
-    vmTest.ServiceRequestId = Requestid;
-    vmTest.loading = true;
-    vmTest.Refresh = function () {
-        vmTest.loading = true;
-        $http.get('ReportingController/GetMessageDetails/' + Requestid).then(function (data) {
-            vmTest.MessageDetails = data.data;
-            vmTest.loading = false;
-        });
-    }
-
-    $http.get('ReportingController/GetMessageDetails/' + Requestid).then(function (data) {
-        vmTest.MessageDetails = data.data;
-        vmTest.loading = false;
-    });
-
-    vmTest.searchdet = function (MessageLogs) {       
-             return (MessageLogs.ParentMessageLogId == 0 || MessageLogs.ExceptionDescription != '');       
-    }
-         
-   
-    var isScrolled = false;
-    //Start-Scroll To Top of the screen
-    vmTest.scrollTo = function (eID) {
-        var est = document.getElementById(eID);
-        var docPos = f_scrollTop();
-        est.scrollIntoView();
-        window.scrollTo(0, docPos);
-
-    };  
-    function f_scrollTop() {
-        return f_filterResults (
-            window.pageYOffset ? window.pageYOffset : 0,
-            document.documentElement ? document.documentElement.scrollTop : 0,
-            document.body ? document.body.scrollTop : 0
-        );
-    }
-    function f_filterResults(n_win, n_docel, n_body) {
-        var n_result = n_win ? n_win : 0;
-        if (n_docel && (!n_result || (n_result > n_docel)))
-            n_result = n_docel;
-        return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
-    }
-    //End-Scroll To Top of the screen
-    vmTest.setContent = function (Documentobjectid, HeaderValue) {
-
-        $uibModal.open({
-            templateUrl: 'ext-modules/psReporting/MessagLogMessageView.html',
-            controller: 'MessageLogModuleMessagecntrl',
-            controllerAs: 'vmTest',
-            resolve: {
-                Documentobjectid: function () {
-                    return Documentobjectid;
-                },
-                HeaderValue: function () {
-                    return HeaderValue;
-                }
-            }
-        });
-
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import MessageModal from './MessageModal'; // Assuming you have created equivalent React modal components
+import ExceptionModal from './ExceptionModal'; // Assuming you have created equivalent React modal components
+interface MessageDetails {
+  ParentMessageLogId: number;
+  ExceptionDescription: string;
+interface Props {
+  ServiceId: string;
+const MessageLogComponent: React.FC<Props> = ({ ServiceId }) => {
+  const [messageDetails, setMessageDetails] = useState<MessageDetails[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  useEffect(() => {
+    const fetchMessageDetails = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`ReportingController/GetMessageDetails/${ServiceId}`);
+        setMessageDetails(response.data);
+      } catch (error) {
+        console.error("Failed to fetch Message Details", error);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchMessageDetails();
+  }, [ServiceId]);
+  const searchDetails = (messageLogs: MessageDetails) => {
+    return messageLogs.ParentMessageLogId === 0 || messageLogs.ExceptionDescription !== '';
+  };
+  const scrollTo = (eID: string) => {
+    const element = document.getElementById(eID);
+    if (element) {
+      element.scrollIntoView();
+    }
+  };
+  const openMessageModal = (documentObjectId: string, headerValue: string) => {
+    // Open message modal
+    // This is a placeholder for modal logic, use actual modal logic with props
+  };
+  const openExceptionModal = (content: string) => {
+    // Open exception modal
+    // This is a placeholder for modal logic, use actual modal logic with props
+  };
+  return (
+    <div>
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <div>
+          {messageDetails.filter(searchDetails).map((messageLog, index) => (
+            <div key={index}>
+              {/* Display the message log details and buttons for modal pop-up */}
+              {/* Placeholder example for button, insert actual design and functionality */}
+              <button onClick={() => openMessageModal('DocumentObjectId', 'HeaderValue')}>Open Message Modal</button>
+              <button onClick={() => openExceptionModal('Content')}>Open Exception Modal</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
-
-    vmTest.setExceptionContent = function (Content) {       
-        $uibModal.open({
-            templateUrl: 'ext-modules/psReporting/MessageExceptionView.html',
-            controller: 'MessageLogModuleExceptionViewcntrl',
-            controllerAs: 'vmTest',
-            resolve: {
-                Content: function () {
-                    return Content;
-                }
-            }
-        });
-
-    };
-
-
-}]);
-
-
-angular.module('MessageLogModule').controller('MessageLogModuleMessagecntrl', ['$http', '$uibModalInstance', 'Documentobjectid', 'HeaderValue',
-function MessageLogModuleMessagecntrl($http, $uibModalInstance, Documentobjectid, HeaderValue) {
-
-    var vmTest = this;
-    vmTest.Content = '';
-    vmTest.HeaderValue = HeaderValue;
-
-    $http.get('ExceptionController/GetMessageContent/' + Documentobjectid)
-      .then(function (response) {
-          vmTest.Content = response.data;
-      });
-
-}]);
-
-
-angular.module('MessageLogModule').controller('MessageLogModuleExceptionViewcntrl', ['$http', '$uibModalInstance', 'Content',
-function MessageLogModuleExceptionViewcntrl($http, $uibModalInstance, Content) {
-    var vmTest = this;
-    vmTest.ExceptionDescription = Content;
-   
-
-
-}]);
+export default MessageLogComponent;
