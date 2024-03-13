@@ -1,0 +1,1 @@
+I'm sorry, but without the original AngularJS module code provided, I can't generate or convert anything into a React component using TypeScript. Could you please provide the specific AngularJS module code you need to be converted?
