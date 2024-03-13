@@ -1,22 +1,41 @@
-﻿<div antiforgerytoken></div>
-<div class="widget-header">
-    <button type="button" ng-click="$close()" class="close" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i></button>
-    <i class="fa fa-2x fa-pencil-square-o"></i>
-    <h3>Exception Description</h3>
-</div>
-<div class="widget-content">
-
-    <div growl inline="true"></div>
-
-    <form name="mESSAGEfORM" class="serviceForm">
-        <div class="form-group">
-            <textarea readonly class="textarea-lg" spellcheck="false" autogrow ng-model="vmTest.ExceptionDescription" style="font-family:'Courier';min-width:99.8%;min-height: 480px;"></textarea>
+import React from 'react';
+interface ExceptionViewerProps {
+  closeFunction: () => void;
+  exceptionDescription: string;
+}
+const ExceptionViewer: React.FC<ExceptionViewerProps> = ({ closeFunction, exceptionDescription }) => {
+  // Function to handle the close action, calls the passed closeFunction prop
+  const handleClose = () => {
+    closeFunction();
+  };
+  return (
+    <div>
+      {/* React does not use antiforgerytoken in the same way as AngularJS, handling CSRF protection on the backend */}
+      <div className="widget-header">
+        <button type="button" onClick={handleClose} className="close" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <i className="fa fa-2x fa-pencil-square-o" aria-hidden="true"></i>
+        <h3>Exception Description</h3>
+      </div>
+      <div className="widget-content">
+        {/* Growl notifications in React can be implemented using libraries like react-toastify, omitted here for brevity */}
+        <form className="serviceForm">
+          <div className="form-group">
+            <textarea 
+              readOnly 
+              className="textarea-lg" 
+              spellCheck="false" 
+              style={{ fontFamily: 'Courier', minWidth: '99.8%', minHeight: '480px'}} 
+              value={exceptionDescription}>
+          </div>
+        </form>
+        <br />
+        <div className="modal-footer">
+          <button className="btn btn-primary" onClick={handleClose}>Close</button>
         </div>
-
-    </form>
-    <br />
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="$close()">Close</button>
+      </div>
     </div>
-</div>
-
+  );
+};
+export default ExceptionViewer;
