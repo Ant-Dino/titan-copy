@@ -1,21 +1,33 @@
-﻿<div antiforgerytoken></div>
-<div class="widget-header">
-    <button type="button" ng-click="$close()" class="close" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i></button>
-    <i class="fa fa-2x fa-pencil-square-o"></i>
-    <h3>{{vmTest.HeaderValue}}</h3>
-</div>
-<div class="widget-content">
-
-    <div growl inline="true"></div>
-
-    <form name="mESSAGEfORM" class="serviceForm">
-        <div class="form-group">
-            <textarea style="min-width:99.8%; min-height: 480px; text-wrap:none;font-family:'Courier New'" readonly class="textarea-lg" spellcheck="false" autogrow ng-model="vmTest.Content"></textarea>
-        </div>
-    </form>
-    <br />
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="$close()">Close</button>
+return (
+  <div>
+    {/* Anti-forgery token can be handled outside the component or via context API */}
+    <div className="widget-header">
+      <button type="button" onClick={closeModal} className="close" data-dismiss="modal">
+        <FontAwesomeIcon icon={faTimes} aria-hidden="true" />
+      </button>
+      <FontAwesomeIcon icon={faPencilSquare} size="2x" />
+      <h3>{HeaderValue}</h3>
     </div>
-</div>
-
+    <div className="widget-content">
+      {/* Growl-like notifications can be handled using libraries like react-toastify */}
+      <form className="serviceForm">
+        <div className="form-group">
+          <textarea 
+            style={{ minWidth: '99.8%', minHeight: '480px', textWrap: 'none', fontFamily: 'Courier New' }}
+            readOnly 
+            className="textarea-lg" 
+            spellCheck="false" 
+            value={Content}
+          />
+        </div>
+      </form>
+      <br />
+      <div className="modal-footer">
+        <button className="btn btn-primary" onClick={closeModal}>Close</button>
+      </div>
+    </div>
+  </div>
+);
+HeaderValue: PropTypes.string.isRequired,
+Content: PropTypes.string.isRequired,
+closeModal: PropTypes.func.isRequired,
