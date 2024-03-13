@@ -1,0 +1,1 @@
+I'm sorry, but you haven't provided any AngularJS template code to convert into a React component. Could you please provide the specific AngularJS template code you want to be converted?
