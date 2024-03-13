@@ -1,130 +1,128 @@
-﻿<div >
-    <div id="modalId" class="widget-header">
-        <button type="button" ng-click="$close()" class="close" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i></button>
-        <i class="fa fa-2x fa-pencil-square-o"></i>
-        <h3>Order Activity</h3>
-    </div>
-    <div style="margin:auto;width:10%;padding:50px;" ng-show="vmTest.loading">
-        <i class="fa fa-spinner fa-spin fa-4x fa-fw margin-bottom"></i>
-        Loading...
-    </div>
+import React, { useState, useEffect } from 'react';
 
-    <div class="widget-content" ng-show="!vmTest.loading">
-        <div class="well well-sm">
-            <b>Order Information</b>
-        </div>
-        <div class="row" ng-repeat-end="" ng-show="active==user.CustomerName" ng-class-odd="'alt'">
-            <div class="col-md-5">
-                <label>Service Request Id: </label> {{vmTest.MessageDetails.ReportDetails.ServiceRequestId}}<br>
-                <label>Order Date: </label> {{vmTest.MessageDetails.ReportDetails.createddate | date:'MM/dd/yyyy'}}<br>
-                <label>Service Type: </label> {{vmTest.MessageDetails.ReportDetails.service}}<br>
-                <label>Application: </label> {{vmTest.MessageDetails.ReportDetails.ApplicationId}}
+interface OrderActivityProps {
+    data: any; // Assuming 'data' is the prop that carries all necessary information, replace 'any' with a more specific type based on actual data structure
+    loadData: () => Promise<any>; // Assuming 'loadData' is a prop function to fetch data, replace 'any' with a specific type based on actual data structure
+    setContent: (documentObjectId: string, messageType: string) => void; // Assuming this function sets some content based on parameters
+    scrollToTop: () => void; // Assuming this function implements a scroll to top behavior
+}
+
+const OrderActivity: React.FC<OrderActivityProps> = ({ data, loadData, setContent, scrollToTop }) => {
+    const [loading, setLoading] = useState<boolean>(true);
+    const [messageLogs, setMessageLogs] = useState<any[]>([]); // Replace 'any' with specific type based on actual data structure
+    const [showMessages, setShowMessages] = useState<{ [key: string]: boolean }>({});
+
+    useEffect(() => {
+        loadData().then((data) => {
+            setMessageLogs(data.MessageDetails.MessageLogDetails);
+            setLoading(false);
+        });
+    }, [loadData]);
+
+    const toggleMessages = (messageLogId: string) => {
+        setShowMessages((prevShowMessages) => ({
+            ...prevShowMessages,
+            [messageLogId]: !prevShowMessages[messageLogId],
+        }));
+    };
+
+    return (
+        <div>
+            <div id="modalId" className="widget-header">
+                <button type="button" onClick={() => setContent('', '')} className="close" data-dismiss="modal"><i className="fa fa-times" aria-hidden="true"></i></button>
+                <i className="fa fa-2x fa-pencil-square-o"></i>
+                <h3>Order Activity</h3>
             </div>
-            <div class="col-md-4">
-                <label>Customer Id: </label> {{vmTest.MessageDetails.ReportDetails.CustomerId}} <br>
-                <label>External Reference Number: </label> {{vmTest.MessageDetails.ReportDetails.ExternalRefNum}} <br>
-                <label>Customer Reference Number: </label> {{vmTest.MessageDetails.ReportDetails.CustomerRefNum}} <br>
-            </div>
-            <div class="col-md-3">
-                <label>Internal Reference Number: </label> {{vmTest.MessageDetails.ReportDetails.InternalRefNum}}<br>
-                <label>Internal Reference Id: </label> {{vmTest.MessageDetails.ReportDetails.InternalRefId}}<br>
-            </div>
-        </div>
-        <br />
-        <div class="well well-sm">
-            <b>Message Flow</b>
-            <button type="button" style="float: right; border:0;color:black;background-color:none" title="Refresh" ng-click="vmTest.Refresh()">
-                <i  class="fa fa-refresh"></i>
-            </button>
-        </div>
-        <div class="row">
-            <div class="col-lg-5 text-center text-info">
-                <h5>Incoming to LVIS</h5>
-            </div>
-            <div class="col-lg-2 text-center text-info">
-                <h5>LVIS</h5>
-            </div>
-            <div class="col-lg-5 text-center text-info">
-                <h5>Outgoing from LVIS</h5>
-            </div>
-        </div>
-        <ul class="timeline" ng-repeat="MessageLogs in vmTest.MessageDetails.MessageLogDetails|filter: vmTest.searchdet ">
-            <li ng-show={{MessageLogs.IsIncoming}}>
-                <div ng-if="MessageLogs.ExceptionDescription" class="timeline-badge danger"><i ng-click="vmTest.setExceptionContent(MessageLogs.ExceptionDescription)" class="glyphicon glyphicon-arrow-right" data-toggle="modal" data-target="#myException" title="Incoming To LVIS"></i></div>
-                <div ng-if="!MessageLogs.ExceptionDescription" class="timeline-badge success"><i class="glyphicon glyphicon-arrow-right" data-toggle="tooltip" title="Incoming To LVIS"></i></div>
-                <div class="timeline-panel" ng-init="showMessages=false">
-                    <div class="timeline-heading">
-                        <p><small class="text-muted"><i class="glyphicon glyphicon-time"></i>{{MessageLogs.MessageLogId}},{{MessageLogs.CreatedDateTime}}</small></p>
+            {loading && (
+                <div style={{ margin: 'auto', width: '10%', padding: '50px' }}>
+                    <i className="fa fa-spinner fa-spin fa-4x fa-fw margin-bottom"></i> Loading...
+                </div>
+            )}
+            {!loading && (
+                <div className="widget-content">
+                    <div className="well well-sm">
+                        <b>Order Information</b>
                     </div>
-                    <div class="timeline-body">
-                        <div>
-                            <label>
-                                <a href="" ng-click="showMessages=!showMessages">
-                                    Incoming from {{MessageLogs.ExternalApplication}}, Message type: {{MessageLogs.Description}}
-                                </a>
-                                <a href="" ng-show="MessageLogs.hasChild && !showMessages" ng-click="showMessages=!showMessages">+ More</a>
-                                <a href="" ng-show="showMessages" ng-click="showMessages=!showMessages">- Less</a>
-                            </label>
-                        </div>
-                        <p class="text-right">
-                            <a href="" ng-click="vmTest.setContent(MessageLogs.Documentobjectid,'Received Message')" data-toggle="modal" data-target="#myModal">
-                                <span class="glyphicon glyphicon-paperclip" data-toggle="tooltip" title="Attachment(s)"></span>
-                            </a>
-                        </p>
-                        <div ng-show="showMessages">
-                            <div ng-repeat="ChildLogs in vmTest.MessageDetails.MessageLogDetails|filter: { ParentMessageLogId:MessageLogs.MessageLogId }">
-                                <label>{{ChildLogs.ExternalApplication}}, Message type: {{ChildLogs.Description}}</label>
-                                <p class="text-right">
-                                    <a href="" ng-click="vmTest.setContent(ChildLogs.Documentobjectid,'Received Message')" data-toggle="modal" data-target="#myModal">
-                                        <span class="glyphicon glyphicon-paperclip" data-toggle="tooltip" title="Attachment(s)"></span>
-                                    </a>
-                                </p>
+                    {/* Replacing ng-repeat and ng-show with map and conditional rendering in React */}
+                    {data.MessageDetails.ReportDetails.map((detail: any, index: number) => ( // Replace 'any' with specific type
+                        <div key={index} className={`row ${index % 2 === 0 ? "" : "alt"}`} style={{ display: data.active === detail.CustomerName ? "" : "none" }}>
+                            <div className="col-md-5">
+                                <label>Service Request Id: </label> {detail.ServiceRequestId}<br />
+                                <label>Order Date: </label> {new Date(detail.createddate).toLocaleDateString()}<br />{/* Assuming 'createddate' is in a format that Date can parse */}
+                                <label>Service Type: </label> {detail.service}<br />
+                                <label>Application: </label> {detail.ApplicationId}
+                            </div>
+                            <div className="col-md-4">
+                                <label>Customer Id: </label> {detail.CustomerId} <br />
+                                <label>External Reference Number: </label> {detail.ExternalRefNum} <br />
+                                <label>Customer Reference Number: </label> {detail.CustomerRefNum} <br />
+                            </div>
+                            <div className="col-md-3">
+                                <label>Internal Reference Number: </label> {detail.InternalRefNum}<br />
+                                <label>Internal Reference Id: </label> {detail.InternalRefId}<br />
                             </div>
                         </div>
+                    ))}
+                    <br />
+                    <div className="well well-sm">
+                        <b>Message Flow</b>
+                        <button type="button" style={{ float: 'right', border: 0, color: 'black', backgroundColor: 'none' }} title="Refresh" onClick={loadData}>
+                            <i className="fa fa-refresh"></i>
+                        </button>
                     </div>
-                </div>
-            </li>
-            <li class="timeline-inverted" ng-show=!{{MessageLogs.IsIncoming}}>
-                <div ng-if="MessageLogs.ExceptionDescription" class="timeline-badge danger"><i ng-click="vmTest.setExceptionContent(MessageLogs.ExceptionDescription)" class="glyphicon glyphicon-arrow-left" data-toggle="modal" data-target="#myException" title="Incoming To LVIS"></i></div>
-                <div ng-if="!MessageLogs.ExceptionDescription" class="timeline-badge success"><i class="glyphicon glyphicon-arrow-left" data-toggle="tooltip" title="Outgoing From LVIS"></i></div>
-                <div class="timeline-panel" ng-init="showMessages=false">
-                    <div class="timeline-heading">
-                        <p><small class="text-muted"><i class="glyphicon glyphicon-time"></i>{{MessageLogs.MessageLogId}}, {{MessageLogs.CreatedDateTime}}</small></p>
-                    </div>
-                    <div class="timeline-body">
-                        <div>
-                            <label>
-                                <a href="" ng-click="showMessages=!showMessages">Outgoing message to {{MessageLogs.ExternalApplication}}, Message type: {{MessageLogs.Description}}</a>
-                                <a href="" ng-show="MessageLogs.hasChild && !showMessages" ng-click="showMessages=!showMessages">+ More</a>
-                                <a href="" ng-show="showMessages" ng-click="showMessages=!showMessages">- Less</a>
-                            </label>
+                    {/* Message Logs mapping */}
+                    {messageLogs.map((messageLog, index) => (
+                        <div key={index}>
+                            {/* Conditional rendering replacing ng-show */}
+                            {messageLog.IsIncoming ? (
+                                <div className={`timeline ${messageLog.IsIncoming ? "" : "timeline-inverted"}`}>
+                                    <div className={`timeline-badge ${messageLog.ExceptionDescription ? "danger" : "success"}`}><i onClick={() => setContent(messageLog.ExceptionDescription, 'Incoming To LVIS')} className="glyphicon glyphicon-arrow-right" title="Incoming To LVIS"></i></div>
+                                    <div className="timeline-panel">
+                                        <div className="timeline-heading">
+                                            <p><small className="text-muted"><i className="glyphicon glyphicon-time"></i>{messageLog.MessageLogId}, {new Date(messageLog.CreatedDateTime).toLocaleString()}</small></p>
+                                        </div>
+                                        <div className="timeline-body">
+                                            <div>
+                                                <label>
+                                                    <a href="#" onClick={() => toggleMessages(messageLog.MessageLogId)}>
+                                                        Incoming from {messageLog.ExternalApplication}, Message type: {messageLog.Description}
+                                                    </a>
+                                                    {showMessages[messageLog.MessageLogId] ? (
+                                                        <a href="#" onClick={() => toggleMessages(messageLog.MessageLogId)}>- Less</a>
+                                                    ) : (
+                                                        <a href="#" onClick={() => toggleMessages(messageLog.MessageLogId)}>+ More</a>
+                                                    )}
+                                                </label>
+                                            </div>
+                                            <p className="text-right">
+                                                <a href="#" onClick={() => setContent(messageLog.DocumentobjectId, 'Received Message')}>
+                                                    <span className="glyphicon glyphicon-paperclip" title="Attachment(s)"></span>
+                                                </a>
+                                            </p>
+                                            {showMessages[messageLog.MessageLogId] && (
+                                                messageLog.ChildLogs.map((childLog: any, childIndex: number) => ( // Replace 'any' with specific type
+                                                    <div key={childIndex}>
+                                                        <label>{childLog.ExternalApplication}, Message type: {childLog.Description}</label>
+                                                        <p className="text-right">
+                                                            <a href="#" onClick={() => setContent(childLog.DocumentobjectId, 'Received Message')}>
+                                                                <span className="glyphicon glyphicon-paperclip" title="Attachment(s)"></span>
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : null}
                         </div>
-                        <p class="text-right">
-                            <a href="" ng-click="vmTest.setContent(MessageLogs.Documentobjectid,'Sent Message')" data-toggle="modal" data-target="#myModal">
-                                <span class="glyphicon glyphicon-paperclip" data-toggle="tooltip" title="Attachment(s)"></span>
-                            </a>
-                        </p>
-                        <div ng-show="showMessages">
-                            <div ng-repeat="ChildLogs in vmTest.MessageDetails.MessageLogDetails|filter: { ParentMessageLogId:MessageLogs.MessageLogId }">
-                                <label>{{ChildLogs.ExternalApplication}}, Message type: {{ChildLogs.Description}}</label>
-                                <p class="text-right">
-                                    <a href="" ng-click="vmTest.setContent(ChildLogs.Documentobjectid,'Sent Message')" data-toggle="modal" data-target="#myModal">
-                                        <span class="glyphicon glyphicon-paperclip" data-toggle="tooltip" title="Attachment(s)"></span>
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    ))}
+                    <br />
+                    <a onMouseOver={() => (document.getElementById('atop')!.style.cursor = 'pointer')} style={{ float: 'right' }} id="atop" onClick={scrollToTop}>Back To Top</a><br />
                 </div>
-            </li>
-        </ul>
-        <!--<button class="scroll-modal-top" ng-click="vmTest.scrollTo('modalId')">Back To Top</button>-->
-        <!--<button type="button" class="btn btn-default btn-sm" ng-show="ishideupbutton" ng-click="vmTest.scrollTo('modalId')">
-            <span class="glyphicon glyphicon-arrow-up"></span> Up
-        </button>-->
-        <a onMouseOver="this.style.cursor='pointer'"  style="float:right" id="atop"  ng-click="vmTest.scrollTo('modalId');$event.stopPropagation();">Back To Top</a><br />
-    </div>
-</div>
+            )}
+        </div>
+    );
+};
 
-
-
+export default OrderActivity;
