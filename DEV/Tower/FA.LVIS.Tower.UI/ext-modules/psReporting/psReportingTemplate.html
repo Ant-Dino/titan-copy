@@ -1,79 +1,98 @@
-﻿<div antiforgerytoken></div>
-<div ng-controller="psReportingController as vmReport" class="ps-dashboard-header">
-    <ul class="breadcrumb">
-        <li class="subbreadcrumb">
-            <ps-sub-menu>
-                <div ng-if="loggedTenant == 'LVIS'">
-                    <ps-sub-menu-item ng-if="togglingTenant == 'LVIS'" label="Orders Summary" activetab="Orders Summary" ng-click="vmReport.switchGridInfo('')">Orders Summary</ps-sub-menu-item>
-                    <ps-sub-menu-item ng-if="togglingTenant == 'RF'" label="Orders Summary" ng-click="vmReport.switchGridInfo('')">Orders Summary</ps-sub-menu-item>
-                    <ps-sub-menu-item ng-if="togglingTenant == 'LVIS'" label="RF Orders Summary" ng-click="vmReport.switchGridInfo('RF')">RF Orders Summary</ps-sub-menu-item>
-                    <ps-sub-menu-item ng-if="togglingTenant == 'RF'" label="RF Orders Summary" activetab="RF Orders Summary" ng-click="vmReport.switchGridInfo('RF')">RF Orders Summary</ps-sub-menu-item>                
-                </div>
-                <div ng-if="loggedTenant != 'LVIS'">
-                    <ps-sub-menu-item label="Orders Summary" activetab="Orders Summary" ng-click="vmReport.search()">Orders Summary</ps-sub-menu-item>
-                </div>
-                
-            </ps-sub-menu>
-        </li>
-    </ul>
-    <div class="wrapper">
-        <div class="col-lg-1"></div>
-        <div class="col-lg-10">
-            <ul class="ps-page-title">
-                <li>{{title}}</li>
-            </ul>
-            <div growl inline="true"></div>
-            <div class="form-group">
-                <div class="form-group" style="display:inline-block">
-                    <i onMouseOver="this.style.cursor='pointer'" id="dt" ng-style="mydtStyle" class="fa fa-calendar" title="Search By Date Range" ng-click="ShowHide('showdates')"></i>|<i onMouseOver="this.style.cursor='pointer'" ng-style="mynumStyle" class="fa fa-bars" title="Search By Reference Number" ng-click="ShowHide('showrefnum')"></i>
-                </div>
-                <div ng-show="vmReport.showdates" class="form-group" name="OrderActivityForm" style="display:inline-block">
-                    <label>Start Date: </label>
-                    <input ng-disabled="vmReport.Disabledate" ng-model="vmReport.Fromdate" datetime-picker date-format="MM/dd/yyyy" date-only />
-                    <label> End Date: </label>
-                    <input ng-disabled="vmReport.Disabledate" name="input" ng-model="vmReport.ThroughDate" datetime-picker date-format="MM/dd/yyyy" future-only date-only />
-                    <label>Date Filter:</label>
-                    <select ng-change="vmReport.changeSelect(vmReport.FilterSection)" ng-model="vmReport.FilterSection" ng-options="obj.value as obj.title for obj in vmReport.DateFilterSelection"></select>
-
-                    <div style="display:inline-block;margin-left:0.5em;cursor:pointer" ng-show="!vmReport.Busy">
-                        <i class="fa fa-search" ng-click="(togglingTenant == 'RF') ? vmReport.loadRFOrder() : vmReport.search()"></i>
-                    </div>
-                    <div style="display:inline-block; margin:0 auto;" ng-show="vmReport.Busy">
-                        <i class="fa fa-spinner fa-spin"></i>
-                    </div>
-                    <span class="help-block with-errors" ng-show="vmReport.ValidateError">
-                        End date cannot be earlier than the Start date
-                    </span>
-                </div>
-                <div ng-show="vmReport.showrefnum" class="form-group" style="display:inline-block">
-                    <label>Search By</label>
-                    <select ng-change="vmReport.changerefSelect(vmReport.FilterReferenceNoSection)" ng-model="vmReport.FilterReferenceNoSection" ng-options="obj.value as obj.title for obj in vmReport.ReferencenoFilterSelection"></select>
-                    <input class="input" ng-disabled="vmReport.DisableReferenceNo" type="text" required ng-model="vmReport.ReferenceNo" />
-                    <div style="display:inline-block;margin-left:0.5em;cursor:pointer" ng-show="!vmReport.BusyRef">
-                        <i class="fa fa-search" ng-click="vmReport.searchbyReferenceNo()"></i>
-                    </div>
-                    <div style="display:inline-block; margin:0 auto;" ng-show="vmReport.BusyRef">
-                        <i class="fa fa-spinner fa-spin"></i>
-                    </div>
-                </div>
-                <div style="display:inline-block;float:right; margin:0 auto;cursor:pointer">
-                    <button class="btn btn-sm" ng-show="hasAccess" ng-click="vmReport.inValidateConfirm()" ng-disabled="inValidBtnEnable">Invalidate Order</button>
-                </div>
-            </div>
-            <div id="serviceGrid" ui-grid="vmReport.serviceGrid"
-                 ui-grid-grouping
-                 ui-grid-move-columns
-                 ui-grid-selection
-                 ui-grid-auto-resize
-                 ui-grid-edit
-                 ui-grid-pagination
-                 ui-grid-exporter
-                 ui-grid-resize-columns
-                 ui-grid-pinning
-                 ui-grid-cellnav
-                 ui-grid-expandable class="ui-grid-selectable">
-            </div>
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Growl } from 'primereact/growl'; // Assuming Growl notification is similar to 'growl' in AngularJS
+import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
+import { Dropdown } from 'primereact/dropdown';
+import { InputText } from 'primereact/inputtext';
+const PsReportingComponent = () => {
+    const [orderToInvalidate, setOrderToInvalidate] = useState([]);
+    const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
+    const [loggedTenant, setLoggedTenant] = useState('');
+    const [togglingTenant, setTogglingTenant] = useState('');
+    const [hasAccess, setHasAccess] = useState(false);
+    const [hasSuperAccess, setHasSuperAccess] = useState(false);
+    const [fromDate, setFromDate] = useState(new Date());
+    const [throughDate, setThroughDate] = useState(new Date());
+    const [busy, setBusy] = useState(false);
+    const [busyRef, setBusyRef] = useState(false);
+    const [showDates, setShowDates] = useState(true);
+    const [showRefNum, setShowRefNum] = useState(false);
+    const [filterSection, setFilterSection] = useState('7');
+    const [dateFilterSelection, setDateFilterSelection] = useState([
+        { title: 'Custom', value: '1' },
+        { title: 'Last 90 Days', value: '90' },
+        { title: 'Last 60 Days', value: '60' },
+        { title: 'Last 30 Days', value: '30' },
+        { title: 'Last 15 Days', value: '15' },
+        { title: 'Last 7 Days', value: '7' },
+        { title: '24 hrs', value: '24' },
+        { title: 'Today', value: '0' },
+    ]);
+    const [filterReferenceNoSection, setFilterReferenceNoSection] = useState('0');
+    const [referenceNo, setReferenceNo] = useState('');
+    useEffect(() => {
+        // Simulate fetching data on component mount
+        setLoggedTenant('LVIS'); // Example setting
+        setTogglingTenant('LVIS'); // Example setting
+        // We will need to handle axios requests here based on the initial state
+    }, []);
+    const search = async () => {
+        try {
+            setBusy(true);
+            const response = await axios.get(`ReportingController/GetReportDetailsFilter/${filterSection}/${togglingTenant}`);
+            // Assume response contains data in a structured manner
+            console.log(response.data); // Actual data handling logic here
+            setBusy(false);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            setBusy(false);
+        }
+    };
+    const invalidateOrder = async () => {
+        try {
+            setBusy(true);
+            const response = await axios.post('ReportingController/InvalidateOrderData', orderToInvalidate);
+            console.log(response.data); // Process response
+            setBusy(false);
+        } catch (error) {
+            console.error('Error invalidating orders:', error);
+            setBusy(false);
+        }
+    };
+    const handleChangeFilterSection = (e) => {
+        setFilterSection(e.value);
+        setBusy(false);
+    };
+    const handleChangeReferenceNoSection = (e) => {
+        setFilterReferenceNoSection(e.value);
+    };
+    const handleDateChange = (e, name) => {
+        if (name === 'fromDate') {
+            setFromDate(e.value);
+        } else {
+            setThroughDate(e.value);
+        }
+    };
+    return (
+        <div className="ps-dashboard-header">
+            {/* Simplified rendering based on the provided AngularJS template */}
+            <Growl ref={(el) => this.growl = el} />
+            <Button label="Search" onClick={search} disabled={busy} />
+            <Button label="Invalidate Order" onClick={invalidateOrder} disabled={!hasAccess || inValidBtnEnable} />
+            <Calendar value={fromDate} onChange={(e) => handleDateChange(e, 'fromDate')} showIcon={true} />
+            <Calendar value={throughDate} onChange={(e) => handleDateChange(e, 'throughDate')} showIcon={true} />
+            <Dropdown value={filterSection} options={dateFilterSelection} onChange={handleChangeFilterSection} placeholder="Select Date Filter" />
+            <Dropdown value={filterReferenceNoSection} options={[
+                { label: '---Select---', value: '0' },
+                { label: 'External Reference Number', value: '1' },
+                { label: 'Internal Reference Number', value: '2' },
+                { label: 'Customer Reference Number', value: '3' },
+                { label: 'Internal Reference Id', value: '4' },
+            ]} onChange={handleChangeReferenceNoSection} placeholder="Select Reference" />
+            <InputText value={referenceNo} onChange={(e) => setReferenceNo(e.target.value)} placeholder="Enter Reference No" />
+            {/* Grid Component and other components can be added here as needed */}
         </div>
-        <div class="col-lg-1"></div>
-    </div>
-</div>
+    );
+};
+export default PsReportingComponent;
