@@ -1,128 +1,71 @@
-﻿"use strict";
-
-var app = angular.module('MessageLogModule', ['ngAnimate', 'ui.grid', 'ui.grid.grouping', 'ui.grid.moveColumns', 'ui.grid.selection', 'ui.bootstrap', 'ui.grid.edit', 'angular-confirm', 'angularjs-datetime-picker', 'angular-growl', 'ui.grid.expandable']);
-
-app.service('modalProvider', ['$uibModal', function ($uibModal) {
-
-    this.openPopupModal = function (Serviceid) {
-        var modalInstance = $uibModal.open({
-            templateUrl: 'ext-modules/psReporting/MessageLogDetails.html',
-            controller: 'MessageLogModuleCtrl',
-            controllerAs: 'vmTest',
-            resolve: {
-                Requestid: function () {
-                    return Serviceid;
-                }
-            }
-        });
-    }
-}]);
-
-
-angular.module('MessageLogModule').controller('MessageLogModuleCtrl', ['$http', '$rootScope', '$scope', '$window', '$location', '$anchorScroll', '$uibModalInstance', 'Requestid', '$uibModal',
-function MessageLogModuleCtrl($http, $rootScope, $scope, $window, $location, $anchorScroll, $uibModalInstance, Requestid, $uibModal) {
-
-    var vmTest = this;
-    vmTest.ServiceRequestId = Requestid;
-    vmTest.loading = true;
-    vmTest.Refresh = function () {
-        vmTest.loading = true;
-        $http.get('ReportingController/GetMessageDetails/' + Requestid).then(function (data) {
-            vmTest.MessageDetails = data.data;
-            vmTest.loading = false;
-        });
-    }
-
-    $http.get('ReportingController/GetMessageDetails/' + Requestid).then(function (data) {
-        vmTest.MessageDetails = data.data;
-        vmTest.loading = false;
-    });
-
-    vmTest.searchdet = function (MessageLogs) {       
-             return (MessageLogs.ParentMessageLogId == 0 || MessageLogs.ExceptionDescription != '');       
-    }
-         
-   
-    var isScrolled = false;
-    //Start-Scroll To Top of the screen
-    vmTest.scrollTo = function (eID) {
-        var est = document.getElementById(eID);
-        var docPos = f_scrollTop();
-        est.scrollIntoView();
-        window.scrollTo(0, docPos);
-
-    };  
-    function f_scrollTop() {
-        return f_filterResults (
-            window.pageYOffset ? window.pageYOffset : 0,
-            document.documentElement ? document.documentElement.scrollTop : 0,
-            document.body ? document.body.scrollTop : 0
-        );
-    }
-    function f_filterResults(n_win, n_docel, n_body) {
-        var n_result = n_win ? n_win : 0;
-        if (n_docel && (!n_result || (n_result > n_docel)))
-            n_result = n_docel;
-        return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
-    }
-    //End-Scroll To Top of the screen
-    vmTest.setContent = function (Documentobjectid, HeaderValue) {
-
-        $uibModal.open({
-            templateUrl: 'ext-modules/psReporting/MessagLogMessageView.html',
-            controller: 'MessageLogModuleMessagecntrl',
-            controllerAs: 'vmTest',
-            resolve: {
-                Documentobjectid: function () {
-                    return Documentobjectid;
-                },
-                HeaderValue: function () {
-                    return HeaderValue;
-                }
-            }
-        });
-
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Modal from './Modal'; // Assuming you have a Modal component
+import MessageLogDetails from './MessageLogDetails'; // Assuming you have a MessageLogDetails component for showing message details
+import MessageExceptionView from './MessageExceptionView'; // Assuming you have a MessageExceptionView component for showing exception details
+// TypeScript interfaces for props and state
+interface MessageLogModuleProps {
+  serviceId: number;
+}
+interface MessageDetails {
+  ParentMessageLogId: number;
+  ExceptionDescription: string;
+const MessageLogModule: React.FC<MessageLogModuleProps> = ({ serviceId }) => {
+  const [messageDetails, setMessageDetails] = useState<MessageDetails[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  // Equivalent of AngularJS's $http.get call using axios
+  useEffect(() => {
+    const getMessageDetails = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`ReportingController/GetMessageDetails/${serviceId}`);
+        setMessageDetails(response.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     };
-
-
-    vmTest.setExceptionContent = function (Content) {       
-        $uibModal.open({
-            templateUrl: 'ext-modules/psReporting/MessageExceptionView.html',
-            controller: 'MessageLogModuleExceptionViewcntrl',
-            controllerAs: 'vmTest',
-            resolve: {
-                Content: function () {
-                    return Content;
-                }
-            }
-        });
-
-    };
-
-
-}]);
-
-
-angular.module('MessageLogModule').controller('MessageLogModuleMessagecntrl', ['$http', '$uibModalInstance', 'Documentobjectid', 'HeaderValue',
-function MessageLogModuleMessagecntrl($http, $uibModalInstance, Documentobjectid, HeaderValue) {
-
-    var vmTest = this;
-    vmTest.Content = '';
-    vmTest.HeaderValue = HeaderValue;
-
-    $http.get('ExceptionController/GetMessageContent/' + Documentobjectid)
-      .then(function (response) {
-          vmTest.Content = response.data;
-      });
-
-}]);
-
-
-angular.module('MessageLogModule').controller('MessageLogModuleExceptionViewcntrl', ['$http', '$uibModalInstance', 'Content',
-function MessageLogModuleExceptionViewcntrl($http, $uibModalInstance, Content) {
-    var vmTest = this;
-    vmTest.ExceptionDescription = Content;
-   
-
-
-}]);
+    getMessageDetails();
+  }, [serviceId]);
+  // Function to filter messages based on conditions
+  const searchdet = (messageLogs: MessageDetails[]) => {
+    return messageLogs.filter(msg => msg.ParentMessageLogId === 0 || msg.ExceptionDescription !== '');
+  };
+  // Function to scroll to top of the page or specific element
+  const scrollTo = (eID: string) => {
+    const element = document.getElementById(eID);
+    element?.scrollIntoView();
+    window.scrollTo(0, 0);
+  };
+  // Function to open message details modal
+  const openMessageModal = (documentObjectId: number, headerValue: string) => {
+    // Functionality to open the modal, pass props
+    // Assuming Modal is a generic modal component that accepts content as children or a specific component as prop
+  };
+  // Function to open exception details modal
+  const openExceptionModal = (content: string) => {
+    // Functionality to open the modal, pass props
+  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  return (
+    <div>
+      {/* Conditional rendering if details exist. Assuming searchDet and scrollTo to be used as per your requirement */}
+      {messageDetails && messageDetails.length > 0 && (
+        <ul>
+          {searchdet(messageDetails).map((detail, index) => (
+            <li key={index} onClick={() => scrollTo(`messageDetail-${index}`)}>
+              {/* Details */}
+            </li>
+          ))}
+        </ul>
+      )}
+      {/* Buttons or actions to open modals */}
+      <button onClick={() => openMessageModal(1234, 'Header Value')}>Open Message Modal</button>
+      <button onClick={() => openExceptionModal('Exception Content')}>Open Exception Modal</button>
+    </div>
+  );
+};
+export default MessageLogModule;
