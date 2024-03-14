@@ -1,21 +1,26 @@
-﻿<div antiforgerytoken></div>
-<div class="widget-header">
-    <button type="button" ng-click="$close()" class="close" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i></button>
-    <i class="fa fa-2x fa-pencil-square-o"></i>
-    <h3>{{vmTest.HeaderValue}}</h3>
-</div>
-<div class="widget-content">
-
-    <div growl inline="true"></div>
-
-    <form name="mESSAGEfORM" class="serviceForm">
-        <div class="form-group">
-            <textarea style="min-width:99.8%; min-height: 480px; text-wrap:none;font-family:'Courier New'" readonly class="textarea-lg" spellcheck="false" autogrow ng-model="vmTest.Content"></textarea>
+import React, { FC } from 'react';
+interface ContentViewerProps {
+  HeaderValue: string;
+  Content: string;
+  onClose: () => void;
+const ContentViewer: FC<ContentViewerProps> = ({ HeaderValue, Content, onClose }) => {
+  return (
+    <div>
+      <div className="widget-header">
+        <button type="button" onClick={onClose} className="close" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <i className="fa fa-2x fa-pencil-square-o" aria-hidden="true" style={{ margin: '0 10px' }}></i>
+        <h3>{HeaderValue}</h3>
+      </div>
+      <div className="widget-content">
+        <div style={{ display: 'inline-block', width: '100%', minHeight: '480px', fontFamily: "'Courier New'", resize: 'none', overflow: 'auto', padding: '10px', border: '1px solid #ccc', marginBottom: '10px' }} readOnly spellCheck="false">
+          {Content}
         </div>
-    </form>
-    <br />
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="$close()">Close</button>
+        <div className="modal-footer">
+          <button className="btn btn-primary" onClick={onClose}>Close</button>
+        </div>
+      </div>
     </div>
-</div>
-
+  );
+export default ContentViewer;
