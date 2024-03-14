@@ -1,79 +1,106 @@
-﻿<div antiforgerytoken></div>
-<div ng-controller="psReportingController as vmReport" class="ps-dashboard-header">
-    <ul class="breadcrumb">
-        <li class="subbreadcrumb">
-            <ps-sub-menu>
-                <div ng-if="loggedTenant == 'LVIS'">
-                    <ps-sub-menu-item ng-if="togglingTenant == 'LVIS'" label="Orders Summary" activetab="Orders Summary" ng-click="vmReport.switchGridInfo('')">Orders Summary</ps-sub-menu-item>
-                    <ps-sub-menu-item ng-if="togglingTenant == 'RF'" label="Orders Summary" ng-click="vmReport.switchGridInfo('')">Orders Summary</ps-sub-menu-item>
-                    <ps-sub-menu-item ng-if="togglingTenant == 'LVIS'" label="RF Orders Summary" ng-click="vmReport.switchGridInfo('RF')">RF Orders Summary</ps-sub-menu-item>
-                    <ps-sub-menu-item ng-if="togglingTenant == 'RF'" label="RF Orders Summary" activetab="RF Orders Summary" ng-click="vmReport.switchGridInfo('RF')">RF Orders Summary</ps-sub-menu-item>                
-                </div>
-                <div ng-if="loggedTenant != 'LVIS'">
-                    <ps-sub-menu-item label="Orders Summary" activetab="Orders Summary" ng-click="vmReport.search()">Orders Summary</ps-sub-menu-item>
-                </div>
-                
-            </ps-sub-menu>
-        </li>
-    </ul>
-    <div class="wrapper">
-        <div class="col-lg-1"></div>
-        <div class="col-lg-10">
-            <ul class="ps-page-title">
-                <li>{{title}}</li>
-            </ul>
-            <div growl inline="true"></div>
-            <div class="form-group">
-                <div class="form-group" style="display:inline-block">
-                    <i onMouseOver="this.style.cursor='pointer'" id="dt" ng-style="mydtStyle" class="fa fa-calendar" title="Search By Date Range" ng-click="ShowHide('showdates')"></i>|<i onMouseOver="this.style.cursor='pointer'" ng-style="mynumStyle" class="fa fa-bars" title="Search By Reference Number" ng-click="ShowHide('showrefnum')"></i>
-                </div>
-                <div ng-show="vmReport.showdates" class="form-group" name="OrderActivityForm" style="display:inline-block">
-                    <label>Start Date: </label>
-                    <input ng-disabled="vmReport.Disabledate" ng-model="vmReport.Fromdate" datetime-picker date-format="MM/dd/yyyy" date-only />
-                    <label> End Date: </label>
-                    <input ng-disabled="vmReport.Disabledate" name="input" ng-model="vmReport.ThroughDate" datetime-picker date-format="MM/dd/yyyy" future-only date-only />
-                    <label>Date Filter:</label>
-                    <select ng-change="vmReport.changeSelect(vmReport.FilterSection)" ng-model="vmReport.FilterSection" ng-options="obj.value as obj.title for obj in vmReport.DateFilterSelection"></select>
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { format, parseISO } from 'date-fns';
 
-                    <div style="display:inline-block;margin-left:0.5em;cursor:pointer" ng-show="!vmReport.Busy">
-                        <i class="fa fa-search" ng-click="(togglingTenant == 'RF') ? vmReport.loadRFOrder() : vmReport.search()"></i>
-                    </div>
-                    <div style="display:inline-block; margin:0 auto;" ng-show="vmReport.Busy">
-                        <i class="fa fa-spinner fa-spin"></i>
-                    </div>
-                    <span class="help-block with-errors" ng-show="vmReport.ValidateError">
-                        End date cannot be earlier than the Start date
-                    </span>
-                </div>
-                <div ng-show="vmReport.showrefnum" class="form-group" style="display:inline-block">
-                    <label>Search By</label>
-                    <select ng-change="vmReport.changerefSelect(vmReport.FilterReferenceNoSection)" ng-model="vmReport.FilterReferenceNoSection" ng-options="obj.value as obj.title for obj in vmReport.ReferencenoFilterSelection"></select>
-                    <input class="input" ng-disabled="vmReport.DisableReferenceNo" type="text" required ng-model="vmReport.ReferenceNo" />
-                    <div style="display:inline-block;margin-left:0.5em;cursor:pointer" ng-show="!vmReport.BusyRef">
-                        <i class="fa fa-search" ng-click="vmReport.searchbyReferenceNo()"></i>
-                    </div>
-                    <div style="display:inline-block; margin:0 auto;" ng-show="vmReport.BusyRef">
-                        <i class="fa fa-spinner fa-spin"></i>
-                    </div>
-                </div>
-                <div style="display:inline-block;float:right; margin:0 auto;cursor:pointer">
-                    <button class="btn btn-sm" ng-show="hasAccess" ng-click="vmReport.inValidateConfirm()" ng-disabled="inValidBtnEnable">Invalidate Order</button>
-                </div>
+const PsReportingComponent = () => {
+    const [ordersData, setOrdersData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasAccess, setHasAccess] = useState(false);
+    const [fromDate, setFromDate] = useState(format(new Date(), 'MM/dd/yyyy'));
+    const [throughDate, setThroughDate] = useState(format(new Date(), 'MM/dd/yyyy'));
+    const [disableDate, setDisableDate] = useState(true);
+    const [validateError, setValidateError] = useState(false);
+    const [filterSection, setFilterSection] = useState('7');
+    const [loggedTenant, setLoggedTenant] = useState('');
+    const [isVisibleDates, setIsVisibleDates] = useState(true);
+    const [isVisibleRefNum, setIsVisibleRefNum] = useState(false);
+    const [busyRef, setBusyRef] = useState(false);
+    const [referenceNo, setReferenceNo] = useState('');
+    const [filterReferenceNoSection, setFilterReferenceNoSection] = useState('0');
+    const [disableReferenceNo, setDisableReferenceNo] = useState(true);
+    const [togglingTenant, setTogglingTenant] = useState('');
+    const [title, setTitle] = useState('Orders Summary');
+
+    useEffect(() => {
+        fetchLoggedTenant();
+        fetchUserData();
+    }, []);
+
+    const fetchLoggedTenant = async () => {
+        try {
+            const response = await axios.get('/Security/GetTenant');
+            setLoggedTenant(response.data);
+            setTogglingTenant(response.data);
+        } catch (error) {
+            console.error('Error fetching logged tenant', error);
+        }
+    };
+
+    const fetchUserData = async () => {
+        try {
+            const response = await axios.get('/UserInfo');
+            // Assuming response data has an object with these properties
+            const { ActivityRight, CanManageTEQ, CanManageBEQ } = response.data;
+            setHasAccess(ActivityRight === 'Admin' || ActivityRight === 'SuperAdmin');
+            // Additional setup based on user data could be added here
+        } catch (error) {
+            console.error('Error fetching user data', error);
+        }
+    };
+
+    const searchData = async () => {
+        setIsLoading(true);
+        try {
+            const response = await axios.post('/ReportingController/GetReportDetails', {
+                filterSection,
+                fromDate,
+                throughDate,
+                togglingTenant,
+            });
+            setOrdersData(response.data);
+            setTitle(togglingTenant === 'RF' ? 'RF Orders Summary' : 'Orders Summary');
+        } catch (error) {
+            console.error('Error fetching orders data', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const changeFilterSection = (value) => {
+        setFilterSection(value);
+        setDisableDate(value !== '1');
+    };
+
+    const validateDate = () => {
+        const startDate = parseISO(fromDate);
+        const endDate = parseISO(throughDate);
+        setValidateError(endDate < startDate);
+    };
+
+    const switchGridInfo = (val) => {
+        if (val === 'RF') {
+            setTogglingTenant('RF');
+            searchData();
+        } else if (val === '') {
+            setTogglingTenant(loggedTenant);
+            searchData();
+        }
+    };
+
+    // Render UI components based on states
+    return (
+        <div>
+            <div> {/* Placeholder for breadcrumb and other UI elements */}
             </div>
-            <div id="serviceGrid" ui-grid="vmReport.serviceGrid"
-                 ui-grid-grouping
-                 ui-grid-move-columns
-                 ui-grid-selection
-                 ui-grid-auto-resize
-                 ui-grid-edit
-                 ui-grid-pagination
-                 ui-grid-exporter
-                 ui-grid-resize-columns
-                 ui-grid-pinning
-                 ui-grid-cellnav
-                 ui-grid-expandable class="ui-grid-selectable">
-            </div>
+            {isLoading ? (
+                <div>Loading...</div>
+            ) : (
+                <div className="wrapper">
+                    {/* Conditional rendering and other JSX elements */}
+                </div>
+            )}
         </div>
-        <div class="col-lg-1"></div>
-    </div>
-</div>
+    );
+};
+
+export default PsReportingComponent;
