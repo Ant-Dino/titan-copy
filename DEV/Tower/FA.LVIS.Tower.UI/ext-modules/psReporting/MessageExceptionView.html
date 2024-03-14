@@ -1,22 +1,39 @@
-﻿<div antiforgerytoken></div>
-<div class="widget-header">
-    <button type="button" ng-click="$close()" class="close" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i></button>
-    <i class="fa fa-2x fa-pencil-square-o"></i>
-    <h3>Exception Description</h3>
-</div>
-<div class="widget-content">
-
-    <div growl inline="true"></div>
-
-    <form name="mESSAGEfORM" class="serviceForm">
-        <div class="form-group">
-            <textarea readonly class="textarea-lg" spellcheck="false" autogrow ng-model="vmTest.ExceptionDescription" style="font-family:'Courier';min-width:99.8%;min-height: 480px;"></textarea>
+import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes, faPencilSquareO } from '@fortawesome/free-solid-svg-icons';
+import './YourComponentStyles.css'; // Assume this CSS file contains all the styles you need for your component
+interface YourComponentProps {
+  ExceptionDescription: string;
+  onClose: () => void; // Function to close the modal or remove the component from view
+const YourComponent: React.FC<YourComponentProps> = ({ ExceptionDescription, onClose }) => {
+  // Function to handle close button click
+  const handleCloseClick = () => {
+    onClose();
+  };
+  return (
+    <div>
+      {/* antiforgerytoken equivalent in React is typically handled in APIs or with context providers, not directly in components. */}  
+      <div className="widget-header">
+        <button type="button" onClick={handleCloseClick} className="close" data-dismiss="modal">
+          <FontAwesomeIcon icon={faTimes} aria-hidden="true" />
+        </button>
+        <FontAwesomeIcon icon={faPencilSquareO} size="2x" />
+        <h3>Exception Description</h3>
+      </div>
+      <div className="widget-content">
+        
+        {/* Inline notifications like growl in React can be implemented using a library like react-toastify or similar */}  
+  
+        <form name="mESSAGEfORM" className="serviceForm">
+          <div className="form-group">
+            <textarea readOnly className="textarea-lg" spellcheck="false" style={{ fontFamily:'Courier', minWidth:'99.8%', minHeight: '480px' }} value={ExceptionDescription}></textarea>
+          </div>
+        </form>
+        <br />
+        <div className="modal-footer">
+          <button className="btn btn-primary" onClick={handleCloseClick}>Close</button>
         </div>
-
-    </form>
-    <br />
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="$close()">Close</button>
+      </div>
     </div>
-</div>
-
+  );
+export default YourComponent;
