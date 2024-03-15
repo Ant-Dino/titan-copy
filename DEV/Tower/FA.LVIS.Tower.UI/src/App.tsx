@@ -1,26 +1,48 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
+import React, { useState, useEffect } from 'react';
+const App: React.FC = () => {
+  const [currentUser, setCurrentUser] = useState('');
+  const [tenantName, setTenantName] = useState('');
+  const [errors, setErrors] = useState({ unauthorized: false });
+  const [activityRight, setActivityRight] = useState('');
+  const [canManageAccessReq, setCanManageAccessReq] = useState(false);
+  // This function would replace your AngularJS's ng-click functionality
+  const openPopupWindow = () => {
+    console.log("Opening Popup Window...");
+  };
+  useEffect(() => {
+    // Fetch user data and rights here
+    // Example set states
+    setCurrentUser('John Doe');
+    setTenantName('Acme Inc.');
+    setErrors({...errors, unauthorized: false}); 
+    setActivityRight('Admin');
+    setCanManageAccessReq(true);
+  }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container-fluid">
+      {errors.unauthorized ? (
+        <div className="alert alert-danger">
+          <div className="error"><i className="fa fa-lg fa-ban"> {errors.unauthorized}</i>
+        </div>
+      ) : (
+        <div>
+          {/* Framework and Menu here, replace with your React components */}
+          <div>
+            {/* This should be replaced with React components structure for menu */}
+            {/* For demonstration, it's just static now */}
+            <div>Home</div>
+            <div>Reporting</div>
+            <div>Mapping Tables</div>
+            <div>Auditing</div>
+            <div>Exceptions</div>
+            <div>Security</div>
+            <div>Utilities</div>
+            <div>Access Request</div>
+            <div onClick={openPopupWindow}>Help</div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
-
+};
 export default App;
