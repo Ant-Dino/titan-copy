@@ -1,19 +1,52 @@
-﻿<div antiforgerytoken></div><div class="row" ng-repeat-end="" ng-show="active==user.CustomerName" ng-class-odd="'alt'">
-    <br>
-    <div class="col-md-5">
-        <label>Service Request Id: </label> {{row.entity.ServiceRequestId}}<br>
-        <label>Order Date: </label> {{row.entity.createddate | date:'MM/dd/yyyy'}}<br>
-        <label>Service Type: </label> {{row.entity.service}}<br>
-        <label>Application: </label> {{row.entity.ApplicationId}}
-    </div>
-    <div class="col-md-4">
-        <label>Customer Id: </label> {{row.entity.CustomerId}} <br>
-        <label>External Reference Number: </label> {{row.entity.ExternalRefNum}} <br>
-        <label>Customer Reference Number: </label> {{row.entity.CustomerRefNum}}<br>
-    </div>
-    <div class="col-md-3">
-        <label>Internal Reference Number: </label> {{row.entity.InternalRefNum}}<br>
-        <label>Internal Reference Id: </label> {{row.entity.InternalRefId}}<br>
-    </div>    
-</div>
+import React from 'react';
 
+type RowData = {
+  ServiceRequestId: string;
+  createddate: string; // Assuming this is a string that can be formatted to 'MM/dd/yyyy';
+  service: string;
+  ApplicationId: string;
+  CustomerId: string;
+  ExternalRefNum: string;
+  CustomerRefNum: string;
+  InternalRefNum: string;
+  InternalRefId: string;
+};
+
+type RequestDetailsProps = {
+  active: string;
+  rowData: RowData;
+};
+
+const formatDate = (dateString: string) => {
+  const options: Intl.DateTimeFormatOptions = { month: '2-digit', day: '2-digit', year: 'numeric' };
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-US', options).format(date);
+};
+
+const RequestDetails: React.FC<RequestDetailsProps> = ({ active, rowData }) => {
+  if (!rowData || active !== rowData.CustomerName) return null;
+
+  return (
+    <div>
+      <div className="row alt">
+        <div className="col-md-5">
+          <label>Service Request Id: </label> {rowData.ServiceRequestId}<br />
+          <label>Order Date: </label> {formatDate(rowData.createddate)}<br />
+          <label>Service Type: </label> {rowData.service}<br />
+          <label>Application: </label> {rowData.ApplicationId}
+        </div>
+        <div className="col-md-4">
+          <label>Customer Id: </label> {rowData.CustomerId} <br />
+          <label>External Reference Number: </label> {rowData.ExternalRefNum} <br />
+          <label>Customer Reference Number: </label> {rowData.CustomerRefNum}<br />
+        </div>
+        <div className="col-md-3">
+          <label>Internal Reference Number: </label> {rowData.InternalRefNum}<br />
+          <label>Internal Reference Id: </label> {rowData.InternalRefId}<br />
+        </div>    
+      </div>
+    </div>
+  );
+};
+
+export default RequestDetails;
