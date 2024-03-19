@@ -1,53 +1,69 @@
-﻿
-
-<div>
-    <div antiforgerytoken></div>
-    <div class="widget-header">
-        <button type="button" ng-click="$close()" class="close" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i></button>
-        <i class="fa fa-2x fa-pencil-square-o"></i>
+import React, { FC } from 'react';
+interface AuditDetailsProps {
+  auditData: {
+    UserName: string;
+    EventDateutc: string;
+    EventType: string;
+    TableName: string;
+    RecordId: string;
+    Property: string;
+    OriginalValue: string;
+    NewValue: string;
+    Section: string;
+  };
+  onClose: () => void;
+}
+const AuditDetails: FC<AuditDetailsProps> = ({ auditData, onClose }) => {
+  return (
+    <div>
+      <div className="widget-header">
+        <button type="button" onClick={onClose} className="close" data-dismiss="modal"><i className="fa fa-times" aria-hidden="true"></i></button>
+        <i className="fa fa-2x fa-pencil-square-o"></i>
         <h3>Audit Details</h3>
-    </div>
-    <div class="widget-content">
-        <form name="groupAuditForm" class="serviceForm">
+      </div>
+      <div className="widget-content">
+        <form className="serviceForm">
+          <div>
             <div>
-                <div>
-                    <label>UserName</label>
-                    <input class="input" type="text" disabled ng-model="vmAudit.entity.UserName" />
-                </div>
-                <div>
-                    <label>Event Date</label>
-                    <input class="input" type="text" disabled ng-model="vmAudit.entity.EventDateutc" />
-                </div>
-                <div>
-                    <label>Event Type</label>
-                    <input class="input" type="text" disabled ng-model="vmAudit.entity.EventType" />
-                </div>
-                <div>
-                    <label>Table Name</label>
-                    <input class="input" type="text" disabled ng-model="vmAudit.entity.TableName" />
-                </div>
-                <div>
-                    <label>Record Id</label>
-                    <input class="input" type="text" disabled ng-model="vmAudit.entity.RecordId" />
-                </div>
-                <div>
-                    <label>Property</label>
-                    <input class="input" type="text" disabled ng-model="vmAudit.entity.Property" />
-                </div>
-                <div>
-                    <label>Original Value</label>
-                    <textarea class="input" rows="6" wrap="soft" multiple disabled ng-model="vmAudit.entity.OriginalValue" />
-                </div>
-                <div>
-                    <label>New Value</label>
-                    <textarea class="input" rows="6" wrap="soft" multiple disabled ng-model="vmAudit.entity.NewValue" />
-                </div>
-                <div>
-                    <label>Section</label>
-                    <input class="input" type="text" multiple disabled ng-model="vmAudit.entity.Section"  />
-                </div>
+              <label>UserName</label>
+              <input className="input" type="text" disabled value={auditData.UserName} />
             </div>
-            
+            <div>
+              <label>Event Date</label>
+              <input className="input" type="text" disabled value={auditData.EventDateutc} />
+            </div>
+            <div>
+              <label>Event Type</label>
+              <input className="input" type="text" disabled value={auditData.EventType} />
+            </div>
+            <div>
+              <label>Table Name</label>
+              <input className="input" type="text" disabled value={auditData.TableName} />
+            </div>
+            <div>
+              <label>Record Id</label>
+              <input className="input" type="text" disabled value={auditData.RecordId} />
+            </div>
+            <div>
+              <label>Property</label>
+              <input className="input" type="text" disabled value={auditData.Property} />
+            </div>
+            <div>
+              <label>Original Value</label>
+              <textarea className="input" rows={6} wrap="soft" disabled value={auditData.OriginalValue} />
+            </div>
+            <div>
+              <label>New Value</label>
+              <textarea className="input" rows={6} wrap="soft" disabled value={auditData.NewValue} />
+            </div>
+            <div>
+              <label>Section</label>
+              <input className="input" type="text" disabled value={auditData.Section} />
+            </div>
+          </div>
         </form>
+      </div>
     </div>
-</div>
+  );
+}
+export default AuditDetails;
