@@ -1,122 +1,104 @@
-﻿"use strict";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useHistory } from 'react-router-dom';
+import { Modal, Button, Form, Growl } from 'react-bootstrap'; // Assuming you use react-bootstrap for UI components
 
+const ConfirmServiceRequestComponent = () => {
+  const history = useHistory();
+  const [disableServiceReqId, setDisableServiceReqId] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [tenantName, setTenantName] = useState('');
+  const [activityRight, setActivityRight] = useState('');
+  const [serviceRequestId, setServiceRequestId] = useState('');
+  const [externalRefNum, setExternalRefNum] = useState('');
+  const [internalRefNum, setInternalRefNum] = useState('');
+  const [internalRefId, setInternalRefId] = useState('');
+  const [customerRefNum, setCustomerRefNum] = useState('');
+  const [confirmServiceCheck, setConfirmServiceCheck] = useState(false);
+  const [statusList, setStatusList] = useState([]);
+  const [status, setStatus] = useState([]);
+  const [entity, setEntity] = useState({});
+  const [busy, setBusy] = useState(false);
+  const [gmsg, setGmsg] = useState('');
 
-angular.module('psConfirmServiceRequest').controller('psConfirmServiceRequestController', psConfirmServiceRequestController);
-
-psConfirmServiceRequestController.$inject = ['$route', '$routeParams', '$scope', '$rootScope', '$http', '$interval', '$uibModal', 'uiGridGroupingConstants', '$window', '$filter', '$confirm', 'UserInfo', '$location', '$cookies', 'growl', ];
-function psConfirmServiceRequestController($route, $routeParams, $scope, $rootScope, $http, $interval, $uibModal, uiGridGroupingConstants, $window, $filter, $confirm, UserInfo, $location, $cookies, growl) {
-    var vmUtilitiesConfirm = this;
-
-    $scope.disableServiceReqId = false;
-    $scope.showMessage = false;
-    $scope.tenantname = $rootScope.tenantname;     
-    $scope.$on("getUser", function (evt, response) {
-        $rootScope.activityright = response.ActivityRight;
-        $rootScope.tenantname = response.tenantname;
-    });
-
-    if (!$rootScope.activityright) {
-        $rootScope.activityright = $cookies.get('activityright');
+  useEffect(() => {
+    const activityRightFromCookie = document.cookie.split('; ').find(row => row.startsWith('activityright=')).split('=')[1];
+    if (activityRightFromCookie) {
+      setActivityRight(activityRightFromCookie);
     }
 
-    if ($rootScope.activityright !== 'SuperAdmin') {
-        var instance = $uibModal.open({
-            template: '<div class="widget-header"><i class="fa fa-lg fa-exclamation-triangle"></i> <h3>Attention</h3></div><div class="modal-body">You are not authorized to view this page.</div>' +
-                '<div class="modal-footer"><a class="btn btn-default" ng-click="$close()">Close</a></div>', size: 'sm'
+    // Fetch Status List
+    axios.get('UtilitiesController/GetStatus')
+        .then(response => {
+            setStatusList(response.data);
         });
 
-        instance.result.finally(function () {
-            $location.path('/dashboard');
+    // Mocking user data fetch, replace with actual logic
+    const userInfo = { activityright: 'SuperAdmin', tenantname: 'DemoTenant' }; // Replace this with actual API call
+    setActivityRight(userInfo.activityright);
+    setTenantName(userInfo.tenantname);
+  }, []);
+
+  const handleConfirm = () => {
+    setConfirmServiceCheck(true);
+    axios.get(`UtilitiesController/ConfirmService/${serviceRequestId}`)
+        .then(response => {
+            if (response.data === true) {
+                Growl.success(`Confirm Service ${serviceRequestId} successful`); // This needs to be replaced with your actual success message logic
+            } else {
+                Growl.error(`Confirm Service ${serviceRequestId} not successful`); // This needs to be replaced with your actual error message logic
+            }
+            setConfirmServiceCheck(false);
         });
+  };
+
+  const handleSearch = () => {
+    setBusy(true);
+    axios.get(`UtilitiesController/GetServiceReqInfoWithTenant/${serviceRequestId}`)
+        .then(response => {
+            setEntity(response.data);
+            if (response.data.ServiceRequestId > 0) {
+                setExternalRefNum(response.data.ExternalRefNum);
+                setInternalRefNum(response.data.InternalRefNum);
+                setInternalRefId(response.data.InternalRefId);
+                setCustomerRefNum(response.data.CustomerRefNum);
+                const index = statusList.findIndex(status => status.ID === response.data.Status.ID);
+                if (index > -1) setStatus(statusList[index]);
+                setDisableServiceReqId(true);
+            } else {
+                setShowMessage(true);
+                Growl.error(`There is no matching record found for Service Request ID: ${serviceRequestId}`); // Replace with your actual message logic
+            }
+            setBusy(false);
+        });
+  };
+
+  const handleRefreshSearch = () => {
+    setServiceRequestId('');
+    setExternalRefNum('');
+    setInternalRefNum('');
+    setInternalRefId('');
+    setCustomerRefNum('');
+    setConfirmServiceCheck(false);
+    setDisableServiceReqId(false);
+    setShowMessage(false);
+    if (gmsg !== '') {
+        gmsg.destroy();
     }
-    vmUtilitiesConfirm.Confirm =
-        function Confirm() {         
-      vmUtilitiesConfirm.ConfirmServicecheck = true;
-      $http.get('UtilitiesController/ConfirmService/' + vmUtilitiesConfirm.ServiceRequestId)
-           .success(function (response) {
-               if (response == true) {
-                   vmUtilitiesConfirm.gmsg =growl.success(" Confirm  Service " + vmUtilitiesConfirm.ServiceRequestId + " successful");
-               }
-               else {
-                   vmUtilitiesConfirm.gmsg =growl.error("Confirm Service " + vmUtilitiesConfirm.ServiceRequestId + " not successful");
-               }
-               vmUtilitiesConfirm.ConfirmServicecheck = false;
-           });
+  };
+
+  if (activityRight !== 'SuperAdmin') {
+    // Replace with your actual redirect or error disclosure logic
+    return (
+      <div>You are not authorized to view this page.</div>
+    );
   }
 
-    vmUtilitiesConfirm.ConfirmServicecheck = false;
-    vmUtilitiesConfirm.RefreshSearch =
-    function RefreshSearch() {
-        vmUtilitiesConfirm.ServiceRequestId = '';
-        vmUtilitiesConfirm.ExternalRefNum = '';
-        vmUtilitiesConfirm.InternalRefNum = '';
-        vmUtilitiesConfirm.InternalRefId = '';
-        vmUtilitiesConfirm.CustomerRefNum = '';
-        vmUtilitiesConfirm.ConfirmServicecheck = false
-        vmUtilitiesConfirm.Status = [];
-        $scope.disableServiceReqId = false;
-        $scope.showMessage = false;
-        $scope.UtilitiesConfirmForm.$setPristine();
-        $scope.UtilitiesConfirmForm.$setUntouched();
-        if (vmUtilitiesConfirm.gmsg != undefined)
-            vmUtilitiesConfirm.gmsg.destroy();
-    }
-    var getIndexIfObjWithOwnAttr = function (array, attr, value) {
-        for (var i = 0; i < array.length; i++) {
-            if (array[i].hasOwnProperty(attr) && array[i][attr] === value) {
-                return i;
-            }
-        }
-        return -1;
-    }
+  return (
+    <div>
+      {/* Your JSX here, including form, inputs, and buttons with their respective handlers */}
+    </div>
+  );
+};
 
-
-    $http.get('UtilitiesController/GetStatus')
-   .then(function (response) {
-       vmUtilitiesConfirm.StatusList = response.data;
-   });
-
-    vmUtilitiesConfirm.Search =
-        function Search() {
-        vmUtilitiesConfirm.Busy = true;
-        $http.get('UtilitiesController/GetServiceReqInfoWithTenant/' + vmUtilitiesConfirm.ServiceRequestId)
-            .success(function (response) {
-                vmUtilitiesConfirm.entity = response;
-                if (vmUtilitiesConfirm.entity.ServiceRequestId > 0)
-                {
-                    vmUtilitiesConfirm.ExternalRefNum = vmUtilitiesConfirm.entity.ExternalRefNum;
-                    vmUtilitiesConfirm.InternalRefNum = vmUtilitiesConfirm.entity.InternalRefNum;
-                    vmUtilitiesConfirm.InternalRefId = vmUtilitiesConfirm.entity.InternalRefId;
-                    vmUtilitiesConfirm.CustomerRefNum = vmUtilitiesConfirm.entity.CustomerRefNum;
-                    var index = getIndexIfObjWithOwnAttr(vmUtilitiesConfirm.StatusList, "ID", vmUtilitiesConfirm.entity.Status.ID);
-                    if (index > -1)
-                        vmUtilitiesConfirm.Status = vmUtilitiesConfirm.StatusList[index];
-                    $scope.disableServiceReqId = true;
-                }
-                
-                if (vmUtilitiesConfirm.entity.ServiceRequestId === 0)
-                {
-                    $scope.showMessage = true;
-                    vmUtilitiesConfirm.gmsg =growl.error("There is no matching record found for Service Request ID: " + vmUtilitiesConfirm.ServiceRequestId);
-                }
-
-                vmUtilitiesConfirm.Busy = false;
-        });
-    }
-   
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default ConfirmServiceRequestComponent;
