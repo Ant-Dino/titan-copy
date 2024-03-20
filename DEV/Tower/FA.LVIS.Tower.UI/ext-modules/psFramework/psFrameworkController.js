@@ -1,90 +1,72 @@
-﻿"use strict";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useHistory } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
+const PsFrameworkComponent = () => {
+  const [isMenuVisible, setIsMenuVisible] = useState(true);
+  const [isMenuButtonVisible, setIsMenuButtonVisible] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [tenantName, setTenantName] = useState(null);
+  const [assemblyVersion, setAssemblyVersion] = useState('');
+  const [serverName, setServerName] = useState('');
+  const [cookies] = useCookies(['currentuser', 'tenantname']);
+  const history = useHistory();
+  useEffect(() => {
+    setCurrentUser(cookies.currentuser);
+    setTenantName(cookies.tenantname);
 
-angular.module("psFramework").controller("psFrameworkController",
-    ['$scope', '$window', '$timeout', '$rootScope', '$location', '$http', '$cookies',
-        function ($scope, $window, $timeout, $rootScope, $location, $http, $cookies) {
+    const checkWidth = () => {
+      const width = Math.max(window.innerWidth);
+      setIsMenuVisible(width >= 768);
+      setIsMenuButtonVisible(!isMenuVisible);
+    };
 
-            $scope.isMenuVisible = true;
-            $scope.isMenuButtonVisible = false;
+    const fetchData = async () => {
+      try {
+        const versionResponse = await axios.get('Security/GetAssemblyVersion/');
+        const serverResponse = await axios.get('Security/GetServerName/');
+        setAssemblyVersion(versionResponse.data);
+        setServerName(serverResponse.data);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
 
-            if (!$rootScope.currentuser) {
-                $rootScope.currentuser = $cookies.get('currentuser');
-            }
+    fetchData();
+    checkWidth();
 
-            if (!$rootScope.tenantname) {
-                $rootScope.tenantname = $cookies.get('tenantname');
-            }
+    const handleResize = () => {
+      checkWidth();
+    };
 
-            $scope.$on('ps-menu-item-selected-event', function (evt, data) {
-                $scope.routeString = data.route;
-                $location.path(data.route);
-                checkWidth();
-                broadcastMenuState();
-            });
-
-            $http.get('Security/GetAssemblyVersion/')
-            .success(function (response) {
-                $scope.assemblyversion = response;
-            });
-
-            $http.get('Security/GetServerName/')
-            .success(function (response) {
-                $scope.servername = response;
-            });
-            
-            $($window).on('resize.psFramework', function () {
-                $scope.$apply(function () {
-                    checkWidth();
-                    broadcastMenuState();
-                });
-            });
-            $scope.$on("$destroy", function () {
-                $($window).off("resize.psFramework"); // remove the handler added earlier
-            });
-
-            $scope.$on('ps-submenu-item-selected-event', function (evt, data) {
-                $scope.routeString = data.route;
-                $location.path(data.route);
-                checkWidth();
-                broadcastSubMenuState();
-            });
-
-
-            var checkWidth = function () {
-                var width = Math.max($($window).width(), $window.innerWidth);
-                $scope.isMenuVisible = (width >= 768);
-                $scope.isMenuButtonVisible = !$scope.isMenuVisible;
-            };
-
-            $scope.menuButtonClicked = function () {
-                $scope.isMenuVisible = !$scope.isMenuVisible;
-                broadcastMenuState();
-                //$scope.$apply();
-            };
-
-            $scope.subMenuButtonClicked = function () {
-                $scope.isMenuVisible = !$scope.isMenuVisible;
-                broadcastSubMenuState();
-                //$scope.$apply();
-            };
-
-            var broadcastMenuState = function () {
-                $rootScope.$broadcast('ps-menu-show',
-                    {
-                        show: $scope.isMenuVisible,
-                    });
-            };
-
-            var broadcastSubMenuState = function () {
-                $rootScope.$broadcast('ps-submenu-show',
-                    {
-                        show: $scope.isMenuVisible,
-                    });
-            };
-
-            $timeout(function () {
-                checkWidth();
-            }, 0);
-
-        }
-    ]);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isMenuVisible, cookies.currentuser, cookies.tenantname]);
+  const toggleMenuVisibility = () => {
+    setIsMenuVisible(!isMenuVisible);
+  };
+  const navigate = (route) => {
+    history.push(route);
+    checkWidth();
+  };
+  return (
+    <div>
+      {isMenuVisible && (
+        <button onClick={toggleMenuVisibility}>Toggle Menu</button>
+      )}
+      <div>
+        Current User: {currentUser || 'Not logged in'}
+      </div>
+      <div>
+        Tenant Name: {tenantName || 'None'}
+      </div>
+      <div>
+        Assembly Version: {assemblyVersion}
+      </div>
+      <div>
+        Server Name: {serverName}
+      </div>
+    </div>
+  );
+};
+export default PsFrameworkComponent;
