@@ -1,60 +1,86 @@
-﻿<div antiforgerytoken></div>
-<div ng-controller="psAuditingController as vmAudit" class="ps-dashboard-header">
-    <ul class="breadcrumb">
-        <li class="subbreadcrumb">
-            <ps-sub-menu>
-                <ps-sub-menu-item label="Auditing Summary" activetab="Auditing Summary" route="auditing">Auditing Summary</ps-sub-menu-item>
-            </ps-sub-menu>
+import React, { useState, useEffect } from 'react';
+type Props = {
+  fromDate: Date;
+  throughDate: Date;
+  disableDate: boolean;
+  dateFilterSelection: Array<{ value: string; title: string }>;
+  filterSection: string;
+  busy: boolean;
+  validateError: boolean;
+  search: () => void;
+  changeSelect: (value: any) => void;
+};
+function AuditSummary({ fromDate, throughDate, disableDate, dateFilterSelection, filterSection, busy, validateError, search, changeSelect }: Props) {
+  const [fromDateState, setFromDate] = useState<Date>(fromDate);
+  const [throughDateState, setThroughDate] = useState<Date>(throughDate);
+  const [filterSectionState, setFilterSection] = useState<string>(filterSection);
+  useEffect(() => {
+    setFromDate(fromDate);
+    setThroughDate(throughDate);
+    setFilterSection(filterSection);
+  }, [fromDate, throughDate, filterSection]);
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = event.target;
+    changeSelect(value);
+    setFilterSection(value);
+  };
+  return (
+    <div className="ps-dashboard-header">
+      <ul className="breadcrumb">
+        <li className="subbreadcrumb">
+          {/* Simulating ps-sub-menu and ps-sub-menu-item */}
+          <div>Auditing Summary</div>
         </li>
-    </ul>
-    <div class="wrapper">
-        <div class="col-lg-1"></div>
-        <div class="col-lg-10">
-            <ul class="ps-page-title">
-                <li>Auditing Summary</li>
-            </ul>
+      </ul>
+      <div className="wrapper">
+        <div className="col-lg-1"></div>
+        <div className="col-lg-10">
+          <ul className="ps-page-title">
+            <li>Auditing Summary</li>
+          </ul>
 
-            <div growl inline="true"></div>
-
-            <div class="form-group">
-                <label>Start Date: </label>
-                <input  ng-disabled="vmAudit.Disabledate" ng-model="vmAudit.Fromdate" datetime-picker date-format="MM/dd/yyyy" date-only />
-                <label> End Date: </label>
-                <input  ng-disabled="vmAudit.Disabledate" name="input" ng-model="vmAudit.ThroughDate" datetime-picker date-format="MM/dd/yyyy" future-only date-only />
-                <label>Date Filter:</label>
-                <select ng-change="vmAudit.changeSelect(vmAudit.FilterSection)" ng-model="vmAudit.FilterSection" ng-options="obj.value as obj.title for obj in vmAudit.DateFilterSelection"></select>
-
-
-                <div style="display:inline-block;margin-left:0.5em;cursor:pointer" ng-show="!vmAudit.Busy">
-                    <i class="fa fa-search" ng-click="vmAudit.search()" ></i>
-                </div>
-                <div style="display:inline-block; margin:0 auto;" ng-show="vmAudit.Busy">
-                    <i class="fa fa-spinner fa-spin"></i>
-                </div>
-                <span class="help-block with-errors" ng-show="vmAudit.ValidateError">
-                    End date cannot be earlier than the Start date
-                </span>
-            </div>
-
-            <div id="serviceGrid" ui-grid="vmAudit.serviceGrid"
-                 ui-grid-grouping
-                 ui-grid-move-columns
-                 ui-grid-selection
-                 ui-grid-auto-resize
-                 ui-grid-cellNav
-                 ui-grid-edit
-                 ui-grid-resize-columns
-                 ui-grid-exporter
-                 ui-grid-cellnav
-                 ui-grid-custom-cell-select
-                 ui-grid-pagination class="ui-grid-selectable">
-            </div>
-
+          <div className={busy ? "hidden" : ""}>
+            <i className="fa fa-search" onClick={search}></i>
+          </div>
+          <div className={busy ? "" : "hidden"}>
+            <i className="fa fa-spinner fa-spin"></i>
+          </div>
+          {validateError && (
+            <span className="help-block with-errors">
+              End date cannot be earlier than the Start date
+            </span>
+          )}
+          <div className="form-group">
+            <label>Start Date: </label>
+            <input
+              disabled={disableDate}
+              type="date"
+              value={fromDateState.toISOString().slice(0, 10)}
+              onChange={(e) => setFromDate(new Date(e.target.value))}
+            />
+            <label> End Date: </label>
+            <input
+              disabled={disableDate}
+              type="date"
+              value={throughDateState.toISOString().slice(0, 10)}
+              onChange={(e) => setThroughDate(new Date(e.target.value))}
+            />
+            <label>Date Filter:</label>
+            <select
+              onChange={handleSelectChange}
+              value={filterSectionState}
+            >
+              {dateFilterSelection.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.title}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div class="col-lg-1"></div>
-
-        
-
-     </div>
-        
-</div>
+        <div className="col-lg-1"></div>
+      </div>
+    </div>
+  );
+}
+export default AuditSummary;
