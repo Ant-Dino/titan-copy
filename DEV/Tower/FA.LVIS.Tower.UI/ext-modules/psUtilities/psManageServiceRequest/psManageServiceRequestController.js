@@ -1,119 +1,104 @@
-﻿"use strict";
-
-angular.module('psManageServiceRequest').controller('psManageServiceRequestController', psManageServiceRequestController);
-
-psManageServiceRequestController.$inject = ['$route', '$routeParams', '$scope', '$rootScope', '$http', '$interval', '$uibModal', 'uiGridGroupingConstants', '$window', '$filter', '$confirm', 'UserInfo', '$location', '$cookies', 'growl',];
-function psManageServiceRequestController($route, $routeParams, $scope, $rootScope, $http, $interval, $uibModal, uiGridGroupingConstants, $window, $filter, $confirm, UserInfo, $location, $cookies, growl) {
-    var vmUtilities = this;
-
-    $scope.disableServiceReqId = false;
-    $scope.showMessage = false;
-
-    $scope.$on("getUser", function (evt, response) {
-        $rootScope.activityright = response.ActivityRight;
-        $rootScope.tenantname = response.tenantname;
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useCookies } from 'react-cookie';
+import { useHistory } from 'react-router-dom';
+import { Modal, Button } from 'react-bootstrap';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
+function PsManageServiceRequestComponent() {
+  const [serviceRequestId, setServiceRequestId] = useState('');
+  const [externalRefNum, setExternalRefNum] = useState('');
+  const [internalRefNum, setInternalRefNum] = useState('');
+  const [internalRefId, setInternalRefId] = useState('');
+  const [customerRefNum, setCustomerRefNum] = useState('');
+  const [chkUniqueID, setChkUniqueID] = useState(false);
+  const [chkExternalRefNum, setChkExternalRefNum] = useState(false);
+  const [status, setStatus] = useState([]);
+  const [statusList, setStatusList] = useState([]);
+  const [disableServiceReqId, setDisableServiceReqId] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [cookies, setCookie] = useCookies(['activityright']);
+  const history = useHistory();
+  const { reset } = useForm(); // Form hook for reset functionality
+  useEffect(() => {
+    const checkAccess = () => {
+      const activityright = cookies.activityright;
+      const tenantname = "LVIS"; // assuming you get it from somewhere
+      if (activityright !== 'SuperAdmin' || tenantname !== 'LVIS') {
+        handleShow();
+      }
+    };
+    const getStatusList = async () => {
+      try {
+        const response = await axios.get('UtilitiesController/GetStatus');
+        setStatusList(response.data);
+      } catch (error) {
+        console.error("There was an error fetching the status list.", error);
+      }
+    };
+    checkAccess();
+    getStatusList();
+  }, [cookies]);
+  const handleShow = () => {
+    toast.error('You are not authorized to view this page.', {
+      onClose: () => history.push('/dashboard')
     });
-
-    if (!$rootScope.activityright) {
-        $rootScope.activityright = $cookies.get('activityright');
+  };
+  const handleSave = async () => {
+    try {
+      const response = await axios.post(`UtilitiesController/UpdateServiceRequestInfo/${serviceRequestId}/${externalRefNum}/${internalRefNum}/${internalRefId}/${customerRefNum}/${status.ID}/${chkUniqueID}/${chkExternalRefNum}`);
+      if (response.data === true) {
+        setShowMessage(true);
+        toast.success(`Service Request information with id ${serviceRequestId} was updated successfully`);
+      }
+    } catch (error) {
+      setShowMessage(true);
+      toast.error("There was an error in Updating Service Request information.");
     }
-
-    if ($rootScope.activityright !== 'SuperAdmin' || $rootScope.tenantname !== 'LVIS') {
-        var instance = $uibModal.open({
-            template: '<div class="widget-header"><i class="fa fa-lg fa-exclamation-triangle"></i> <h3>Attention</h3></div><div class="modal-body">You are not authorized to view this page.</div>' +
-                '<div class="modal-footer"><a class="btn btn-default" ng-click="$close()">Close</a></div>', size: 'sm'
-        });
-
-        instance.result.finally(function () {
-            $location.path('/dashboard');
-        });
+  };
+  const handleSearch = async () => {
+    setBusy(true);
+    try {
+      const response = await axios.get(`UtilitiesController/GetServiceReqInfo/${serviceRequestId}`);
+      const data = response.data;
+      if (data.ServiceRequestId > 0) {
+        setServiceRequestId(data.ServiceRequestId);
+        setExternalRefNum(data.ExternalRefNum);
+        setInternalRefNum(data.InternalRefNum);
+        setInternalRefId(data.InternalRefId);
+        setCustomerRefNum(data.CustomerRefNum);
+        setChkExternalRefNum(false);
+        setChkUniqueID(false);
+        const index = statusList.findIndex((item) => item.ID === data.Status.ID);
+        if (index > -1) setStatus(statusList[index]);
+        setDisableServiceReqId(true);
+      } else {
+        setShowMessage(true);
+        toast.error(`There is no matching record found for Service Request ID: ${serviceRequestId}`);
+      }
+    } catch (error) {
+      console.error("Error during search", error);
     }
-
-    vmUtilities.save =
-        function save() {
-            $http.post('UtilitiesController/UpdateServiceRequestInfo/' + vmUtilities.ServiceRequestId + "/" + vmUtilities.ExternalRefNum + "/" + vmUtilities.InternalRefNum + "/" + vmUtilities.InternalRefId + "/" + vmUtilities.CustomerRefNum + "/" + vmUtilities.Status.ID + "/" + vmUtilities.chkUniqueID + "/" + vmUtilities.chkExternalRefNum)
-                .then(function (response) {
-                    if (response.data == true) {
-                        $scope.showMessage = true;
-                        growl.success("Service Request information with id " + vmUtilities.ServiceRequestId + " was updated successfully ");
-                    }
-                },
-                    function (error) {
-                        $scope.showMessage = true;
-                        growl.error("There was an error in Updating Service Request information.");
-                    });
-        }
-
-    $http.get('UtilitiesController/GetStatus')
-        .then(function (response) {
-            vmUtilities.StatusList = response.data;
-        });
-
-
-    vmUtilities.RefreshSearch =
-        function RefreshSearch() {
-            vmUtilities.ServiceRequestId = '';
-            vmUtilities.ExternalRefNum = '';
-            vmUtilities.InternalRefNum = '';
-            vmUtilities.InternalRefId = '';
-            vmUtilities.CustomerRefNum = '';
-            vmUtilities.chkUniqueID = false;
-            vmUtilities.chkExternalRefNum = false;
-            vmUtilities.Status = [];
-            $scope.disableServiceReqId = false;
-            $scope.showMessage = false;
-            $scope.UtilitiesForm.$setPristine();
-            $scope.UtilitiesForm.$setUntouched();
-        }
-    var getIndexIfObjWithOwnAttr = function (array, attr, value) {
-        for (var i = 0; i < array.length; i++) {
-            if (array[i].hasOwnProperty(attr) && array[i][attr] === value) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    vmUtilities.Search =
-        function Search() {
-            vmUtilities.Busy = true;
-            $http.get('UtilitiesController/GetServiceReqInfo/' + vmUtilities.ServiceRequestId)
-                .success(function (response) {
-                    vmUtilities.entity = response;
-                    if (vmUtilities.entity.ServiceRequestId > 0) {
-                        vmUtilities.ExternalRefNum = vmUtilities.entity.ExternalRefNum;
-                        vmUtilities.InternalRefNum = vmUtilities.entity.InternalRefNum;
-                        vmUtilities.InternalRefId = vmUtilities.entity.InternalRefId;
-                        vmUtilities.CustomerRefNum = vmUtilities.entity.CustomerRefNum;
-                        vmUtilities.chkExternalRefNum = false;
-                        vmUtilities.chkUniqueID = false;
-                        var index = getIndexIfObjWithOwnAttr(vmUtilities.StatusList, "ID", vmUtilities.entity.Status.ID);
-                        if (index > -1)
-                            vmUtilities.Status = vmUtilities.StatusList[index];
-                        $scope.disableServiceReqId = true;
-                    }
-
-                    if (vmUtilities.entity.ServiceRequestId === 0) {
-                        $scope.showMessage = true;
-                        growl.error("There is no matching record found for Service Request ID: " + vmUtilities.ServiceRequestId);
-                    }
-
-                    vmUtilities.Busy = false;
-                });
-        }
-
+    setBusy(false);
+  };
+  const handleRefreshSearch = () => {
+    setServiceRequestId('');
+    setExternalRefNum('');
+    setInternalRefNum('');
+    setInternalRefId('');
+    setCustomerRefNum('');
+    setChkUniqueID(false);
+    setChkExternalRefNum(false);
+    setStatus([]);
+    setDisableServiceReqId(false);
+    setShowMessage(false);
+    reset(); // Reset form fields
+  };
+  return (
+    <div>
+      {/* Render component UI here */}
+    </div>
+  );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default PsManageServiceRequestComponent;
