@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
-const PsReportingComponent = () => {
+const useBusinessLogic = () => {
   const [orderToInvalidate, setOrderToInvalidate] = useState([]);
   const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
   const [loggedTenant, setLoggedTenant] = useState('');
@@ -18,19 +17,14 @@ const PsReportingComponent = () => {
   const [busyRef, setBusyRef] = useState(false);
   const [showRefNum, setShowRefNum] = useState(false);
   const [showDates, setShowDates] = useState(true);
-
   useEffect(() => {
-    // Simulating componentDidMount for initial API calls or setup
     setLoggedTenant('someTenantName'); // Example setup
     setTogglingTenant('someTenantName');
   }, []);
-
   const inValidateConfirm = () => {
-    // Confirmation logic before invalidating
     console.log('Confirm invalidation');
     inValidateProcess();
   };
-
   const inValidateProcess = () => {
     console.log("entered invalidate process method.");
     setBusy(true);
@@ -41,7 +35,6 @@ const PsReportingComponent = () => {
       console.log('Invalidate process simulated');
     }, 2000);
   };
-
   const search = () => {
     console.log('Perform search based on filters');
     setBusy(true);
@@ -51,13 +44,11 @@ const PsReportingComponent = () => {
       setBusy(false);
     }, 2000);
   };
-
   const handleDateChange = (startDate, endDate) => {
     setFromDate(startDate);
     setThroughDate(endDate);
     validateDate();
   };
-
   const validateDate = () => {
     const startDt = new Date(fromDate);
     const endDt = new Date(throughDate);
@@ -67,7 +58,90 @@ const PsReportingComponent = () => {
       setValidateError(false);
     }
   };
-
+  return {
+    orderToInvalidate,
+    inValidBtnEnable,
+    loggedTenant,
+    togglingTenant,
+    hasAccess,
+    hasSuperAccess,
+    serviceGridData,
+    busy,
+    filterSection,
+    fromDate,
+    throughDate,
+    validateError,
+    filterReferenceNoSection,
+    referenceNo,
+    busyRef,
+    showRefNum,
+    showDates,
+    setOrderToInvalidate,
+    setInValidBtnEnable,
+    setLoggedTenant,
+    setTogglingTenant,
+    setHasAccess,
+    setHasSuperAccess,
+    setServiceGridData,
+    setBusy,
+    setFilterSection,
+    setFromDate,
+    setThroughDate,
+    setValidateError,
+    setFilterReferenceNoSection,
+    setReferenceNo,
+    setBusyRef,
+    setShowRefNum,
+    setShowDates,
+    inValidateConfirm,
+    inValidateProcess,
+    search,
+    handleDateChange,
+    validateDate,
+  };
+};
+const PsReportingComponent = () => {
+  const {
+    orderToInvalidate,
+    inValidBtnEnable,
+    loggedTenant,
+    togglingTenant,
+    hasAccess,
+    hasSuperAccess,
+    serviceGridData,
+    busy,
+    filterSection,
+    fromDate,
+    throughDate,
+    validateError,
+    filterReferenceNoSection,
+    referenceNo,
+    busyRef,
+    showRefNum,
+    showDates,
+    setOrderToInvalidate,
+    setInValidBtnEnable,
+    setLoggedTenant,
+    setTogglingTenant,
+    setHasAccess,
+    setHasSuperAccess,
+    setServiceGridData,
+    setBusy,
+    setFilterSection,
+    setFromDate,
+    setThroughDate,
+    setValidateError,
+    setFilterReferenceNoSection,
+    setReferenceNo,
+    setBusyRef,
+    setShowRefNum,
+    setShowDates,
+    inValidateConfirm,
+    inValidateProcess,
+    search,
+    handleDateChange,
+    validateDate,
+  } = useBusinessLogic();
   return (
     <div>
       <h1>Ps Reporting Component</h1>
@@ -75,5 +149,4 @@ const PsReportingComponent = () => {
     </div>
   );
 };
-
 export default PsReportingComponent;
