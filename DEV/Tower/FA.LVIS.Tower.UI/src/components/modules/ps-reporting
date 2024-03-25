@@ -1,0 +1,21 @@
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setLoggedTenant } from './modules/actions';
+
+const PsReportingComponent = () => {
+    const dispatch = useDispatch();
+    const loggedTenant = useSelector(state => state.loggedTenant);
+
+    const handleInputChange = (event) => {
+        dispatch(setLoggedTenant(event.target.value));
+    };
+
+    return (
+        <div>
+            {/* Your JSX here */}
+            <input value={loggedTenant} onChange={handleInputChange} />
+        </div>
+    );
+};
+
+export default PsReportingComponent;
