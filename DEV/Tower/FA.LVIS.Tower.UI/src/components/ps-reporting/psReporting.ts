@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-const PsReportingComponent = () => {
+
+const usePsReportingLogic = () => {
     const [orderToInvalidate, setOrderToInvalidate] = useState([]);
     const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
     const [loggedTenant, setLoggedTenant] = useState('');
@@ -29,25 +30,53 @@ const PsReportingComponent = () => {
     ]);
     const [filterSection, setFilterSection] = useState('7');
     const [disableDate, setDisableDate] = useState(true);
+
     useEffect(() => {
         const initialSetUp = () => {
             // Fetch initial data or perform initial setup operations
         };
         initialSetUp();
     }, []);
+
     const validateDate = () => {
         // Date validation logic here
     };
+
     const search = () => {
         // Implement search logic here
     };
+
     const inValidateProcess = () => {
         // Invalidate process logic here
     };
+
+    return {
+        orderToInvalidate, setOrderToInvalidate, inValidBtnEnable, setInValidBtnEnable,
+        loggedTenant, setLoggedTenant, togglingTenant, setTogglingTenant, hasAccess,
+        setHasAccess, hasSuperAccess, setHasSuperAccess, fromDate, setFromDate,
+        throughDate, setThroughDate, busy, setBusy, serviceGridData, setServiceGridData,
+        dateFilterSelection, setDateFilterSelection, referencenoFilterSelection,
+        setReferencenoFilterSelection, filterSection, setFilterSection, disableDate, setDisableDate,
+        validateDate, search, inValidateProcess
+    };
+};
+
+const PsReportingComponent = () => {
+    const {
+        orderToInvalidate, setOrderToInvalidate, inValidBtnEnable, setInValidBtnEnable,
+        loggedTenant, setLoggedTenant, togglingTenant, setTogglingTenant, hasAccess,
+        setHasAccess, hasSuperAccess, setHasSuperAccess, fromDate, setFromDate,
+        throughDate, setThroughDate, busy, setBusy, serviceGridData, setServiceGridData,
+        dateFilterSelection, setDateFilterSelection, referencenoFilterSelection,
+        setReferencenoFilterSelection, filterSection, setFilterSection, disableDate, setDisableDate,
+        validateDate, search, inValidateProcess
+    } = usePsReportingLogic();
+
     return (
         <div>
             {/* JSX for psReportingComponent */}
         </div>
     );
 };
+
 export default PsReportingComponent;
