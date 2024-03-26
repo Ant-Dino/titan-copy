@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 const usePsReportingLogic = () => {
     const [orderToInvalidate, setOrderToInvalidate] = useState([]);
     const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
@@ -30,53 +29,89 @@ const usePsReportingLogic = () => {
     ]);
     const [filterSection, setFilterSection] = useState('7');
     const [disableDate, setDisableDate] = useState(true);
-
     useEffect(() => {
         const initialSetUp = () => {
             // Fetch initial data or perform initial setup operations
         };
         initialSetUp();
     }, []);
-
     const validateDate = () => {
         // Date validation logic here
     };
-
     const search = () => {
         // Implement search logic here
     };
-
     const inValidateProcess = () => {
         // Invalidate process logic here
     };
-
     return {
-        orderToInvalidate, setOrderToInvalidate, inValidBtnEnable, setInValidBtnEnable,
-        loggedTenant, setLoggedTenant, togglingTenant, setTogglingTenant, hasAccess,
-        setHasAccess, hasSuperAccess, setHasSuperAccess, fromDate, setFromDate,
-        throughDate, setThroughDate, busy, setBusy, serviceGridData, setServiceGridData,
-        dateFilterSelection, setDateFilterSelection, referencenoFilterSelection,
-        setReferencenoFilterSelection, filterSection, setFilterSection, disableDate, setDisableDate,
-        validateDate, search, inValidateProcess
+        orderToInvalidate,
+        inValidBtnEnable,
+        loggedTenant,
+        togglingTenant,
+        hasAccess,
+        hasSuperAccess,
+        fromDate,
+        throughDate,
+        busy,
+        serviceGridData,
+        dateFilterSelection,
+        referencenoFilterSelection,
+        filterSection,
+        disableDate,
+        validateDate,
+        search,
+        inValidateProcess,
+        setOrderToInvalidate,
+        setInValidBtnEnable,
+        setLoggedTenant,
+        setTogglingTenant,
+        setHasAccess,
+        setHasSuperAccess,
+        setFromDate,
+        setThroughDate,
+        setBusy,
+        setServiceGridData,
+        setFilterSection,
+        setDisableDate
     };
 };
-
 const PsReportingComponent = () => {
     const {
-        orderToInvalidate, setOrderToInvalidate, inValidBtnEnable, setInValidBtnEnable,
-        loggedTenant, setLoggedTenant, togglingTenant, setTogglingTenant, hasAccess,
-        setHasAccess, hasSuperAccess, setHasSuperAccess, fromDate, setFromDate,
-        throughDate, setThroughDate, busy, setBusy, serviceGridData, setServiceGridData,
-        dateFilterSelection, setDateFilterSelection, referencenoFilterSelection,
-        setReferencenoFilterSelection, filterSection, setFilterSection, disableDate, setDisableDate,
-        validateDate, search, inValidateProcess
+        orderToInvalidate,
+        inValidBtnEnable,
+        loggedTenant,
+        togglingTenant,
+        hasAccess,
+        hasSuperAccess,
+        fromDate,
+        throughDate,
+        busy,
+        serviceGridData,
+        dateFilterSelection,
+        referencenoFilterSelection,
+        filterSection,
+        disableDate,
+        validateDate,
+        search,
+        inValidateProcess,
+        setOrderToInvalidate,
+        setInValidBtnEnable,
+        setLoggedTenant,
+        setTogglingTenant,
+        setHasAccess,
+        setHasSuperAccess,
+        setFromDate,
+        setThroughDate,
+        setBusy,
+        setServiceGridData,
+        setFilterSection,
+        setDisableDate
     } = usePsReportingLogic();
-
     return (
         <div>
             {/* JSX for psReportingComponent */}
         </div>
     );
 };
-
 export default PsReportingComponent;
