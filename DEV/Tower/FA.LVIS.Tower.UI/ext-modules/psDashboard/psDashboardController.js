@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import DashboardService from 'DEV/Tower/FA.LVIS.Tower.UI/src/services/psDashboard.service.ts';
 function PsDashboard() {
   // State variables converted from $scope and $rootScope
   const [activityRight, setActivityRight] = useState('');
@@ -13,7 +13,7 @@ function PsDashboard() {
   const [hasTEQAccess, setHasTEQAccess] = useState(false);
   // Functions converted from DashBoardCtrl's methods
   const getCurrentUser = () => {
-    axios.get('UserInfo/getUser').then(response => {
+    DashboardService.getCurrentUser().then(response => {
       const userData = response.data;
       setActivityRight(userData.ActivityRight);
       setCanManageTEQ(userData.CanManageTEQ);
@@ -25,12 +25,12 @@ function PsDashboard() {
     });
   };
   const loadBEQExceptions = () => {
-    axios.get('Dashboard/BEQException/').then(response => {
+    DashboardService.loadBEQExceptions().then(response => {
       setBEQSummaryList(response.data);
     });
   };
   const loadTEQExceptions = () => {
-    axios.get('Dashboard/TEQException/').then(response => {
+    DashboardService.loadTEQExceptions().then(response => {
       setTEQSummaryList(response.data);
     });
   };
