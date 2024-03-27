@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const usePsReportingLogic = () => {
+const useBusinessLogic = () => {
   const [orderToInvalidate, setOrderToInvalidate] = useState([]);
   const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
   const [loggedTenant, setLoggedTenant] = useState('');
@@ -82,28 +82,94 @@ const usePsReportingLogic = () => {
   };
 
   return {
-    orderToInvalidate, setOrderToInvalidate, inValidBtnEnable, setInValidBtnEnable, loggedTenant, 
-    setLoggedTenant, togglingTenant, setTogglingTenant, hasAccess, setHasAccess, hasSuperAccess, 
-    setHasSuperAccess, fromDate, setFromDate, throughDate, setThroughDate, busy, setBusy, 
-    dateFilterSelection, setDateFilterSelection, referencenoFilterSelection, 
-    setReferencenoFilterSelection, filterSection, setFilterSection, disableDate, setDisableDate, 
-    serviceGridData, setServiceGridData, validateError, setValidateError, tenant, setTenant, 
-    showrefnum, setShowrefnum, showdates, setShowdates, inValidateConfirm, inValidateProcess, 
-    changeSelect, validateDate, search, loadRFOrder, switchGridInfo
+    orderToInvalidate,
+    inValidBtnEnable,
+    loggedTenant,
+    togglingTenant,
+    hasAccess,
+    hasSuperAccess,
+    fromDate,
+    throughDate,
+    busy,
+    dateFilterSelection,
+    referencenoFilterSelection,
+    filterSection,
+    disableDate,
+    serviceGridData,
+    validateError,
+    tenant,
+    showrefnum,
+    showdates,
+    inValidateConfirm,
+    inValidateProcess,
+    changeSelect,
+    validateDate,
+    search,
+    switchGridInfo,
+    setOrderToInvalidate,
+    setInValidBtnEnable,
+    setLoggedTenant,
+    setTogglingTenant,
+    setHasAccess,
+    setHasSuperAccess,
+    setFromDate,
+    setThroughDate,
+    setBusy,
+    setDateFilterSelection,
+    setReferencenoFilterSelection,
+    setFilterSection,
+    setDisableDate,
+    setServiceGridData,
+    setValidateError,
+    setShowrefnum,
+    setShowdates,
   };
 };
 
 const PsReportingComponent = () => {
   const {
-    orderToInvalidate, setOrderToInvalidate, inValidBtnEnable, setInValidBtnEnable, loggedTenant, 
-    setLoggedTenant, togglingTenant, setTogglingTenant, hasAccess, setHasAccess, hasSuperAccess, 
-    setHasSuperAccess, fromDate, setFromDate, throughDate, setThroughDate, busy, setBusy, 
-    dateFilterSelection, setDateFilterSelection, referencenoFilterSelection, 
-    setReferencenoFilterSelection, filterSection, setFilterSection, disableDate, setDisableDate, 
-    serviceGridData, setServiceGridData, validateError, setValidateError, tenant, setTenant, 
-    showrefnum, setShowrefnum, showdates, setShowdates, inValidateConfirm, inValidateProcess, 
-    changeSelect, validateDate, search, loadRFOrder, switchGridInfo
-  } = usePsReportingLogic();
+    orderToInvalidate,
+    inValidBtnEnable,
+    loggedTenant,
+    togglingTenant,
+    hasAccess,
+    hasSuperAccess,
+    fromDate,
+    throughDate,
+    busy,
+    dateFilterSelection,
+    referencenoFilterSelection,
+    filterSection,
+    disableDate,
+    serviceGridData,
+    validateError,
+    tenant,
+    showrefnum,
+    showdates,
+    inValidateConfirm,
+    inValidateProcess,
+    changeSelect,
+    validateDate,
+    search,
+    switchGridInfo,
+    setOrderToInvalidate,
+    setInValidBtnEnable,
+    setLoggedTenant,
+    setTogglingTenant,
+    setHasAccess,
+    setHasSuperAccess,
+    setFromDate,
+    setThroughDate,
+    setBusy,
+    setDateFilterSelection,
+    setReferencenoFilterSelection,
+    setFilterSection,
+    setDisableDate,
+    setServiceGridData,
+    setValidateError,
+    setShowrefnum,
+    setShowdates,
+  } = useBusinessLogic();
 
   return (
     <div>
