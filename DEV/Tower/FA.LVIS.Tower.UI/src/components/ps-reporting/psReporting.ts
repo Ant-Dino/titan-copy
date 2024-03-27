@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 const useBusinessLogic = () => {
   const [orderToInvalidate, setOrderToInvalidate] = useState([]);
   const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
@@ -34,23 +35,43 @@ const useBusinessLogic = () => {
   const [showrefnum, setShowrefnum] = useState(false);
   const [showdates, setShowdates] = useState(true);
   useEffect(() => {
+    // Similar to componentDidMount and componentDidUpdate:
+    // Your code to fetch data on component mount
     setLoggedTenant('Your logic here');
     setTogglingTenant('Your logic here');
-  }, []);
-  const inValidateConfirm = () => {};
+  }, []); // The empty array causes this effect to only run on mount
+  const inValidateConfirm = () => {
+    // Confirmation logic
+  };
   const inValidateProcess = () => {
     setBusy(true);
+    // Invalidate process logic
+  };
   const changeSelect = (item) => {
     if(item === '1') setDisableDate(false);
+    else setDisableDate(true);
+  };
   const validateDate = () => {
+    // Date validation logic
+    setValidateError(false);
+  };
   const search = () => {
+    setBusy(true);
+    // Search logic
+  };
   const loadRFOrder = () => {
+    // Load RF Order logic
+  };
   const switchGridInfo = (val) => {
     if (val === 'RF') {
       setTogglingTenant('RF');
       loadRFOrder();
+    } else {
       setTogglingTenant(tenant);
       search();
+      // columnToggle(); // Assuming columnToggle is handled inside the search/loadRFOrder functions
+    }
+  };
   return {
     orderToInvalidate,
     inValidBtnEnable,
@@ -77,7 +98,9 @@ const useBusinessLogic = () => {
     search,
     loadRFOrder,
     switchGridInfo,
+  };
 };
+
 const PsReportingComponent = () => {
   const {
     orderToInvalidate,
@@ -106,7 +129,13 @@ const PsReportingComponent = () => {
     loadRFOrder,
     switchGridInfo,
   } = useBusinessLogic();
+
   return (
     <div>
+      {/* Your JSX goes here */}
       <h1>PsReportingComponent</h1>
+    </div>
+  );
+};
+
 export default PsReportingComponent;
