@@ -1,3 +1,4 @@
+ 
 import React, { useState, useEffect } from 'react';
 
 const PsReportingComponent = () => {
@@ -23,6 +24,7 @@ const PsReportingComponent = () => {
   const [dateStyle, setDateStyle] = useState({ color: '#007acc' });
   const [numStyle, setNumStyle] = useState({ color: '' });
 
+  // useEffect to mimic $scope.$on functionality for "getUser"
   useEffect(() => {
     // Placeholder for event listener logic to update state based on "getUser" event
   }, []); // Empty dependency array means this runs once on component mount
