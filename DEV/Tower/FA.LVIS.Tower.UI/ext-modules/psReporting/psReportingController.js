@@ -18,5 +18,12 @@ function PsReportingComponent() {
     const [filterReferenceNoSection, setFilterReferenceNoSection] = useState('0');
     const [busyRef, setBusyRef] = useState(false);
     useEffect(() => {
+        // This useEffect hook is empty, fill with your logic or remove if not needed
+    });
     return (
+        <div>
+            {/* Your JSX goes here */}
+        </div>
+    );
+}
 export default PsReportingComponent;
