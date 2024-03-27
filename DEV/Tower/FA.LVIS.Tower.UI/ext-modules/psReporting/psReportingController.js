@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
-const PsReportingComponent = () => {
+const usePsReportingLogic = () => {
   const [orderToInvalidate, setOrderToInvalidate] = useState([]);
   const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
   const [loggedTenant, setLoggedTenant] = useState('');
@@ -31,28 +30,22 @@ const PsReportingComponent = () => {
   const [disableDate, setDisableDate] = useState(true);
   const [serviceGrid, setServiceGrid] = useState({ data: [] });
   const [validateError, setValidateError] = useState(false);
-
   useEffect(() => {
-    // ComponentDidMount logic can be added here
     setFromDate(new Date().toLocaleDateString('en-US'));
     setThroughDate(new Date().toLocaleDateString('en-US'));
   }, []);
-
   const inValidateConfirm = () => {
     alert('Are you sure you want to Invalidate selected order(s)?');
     // Proceed with invalidate process
   };
-
   const inValidateProcess = () => {
     console.log("entered invalidate process method.");
     // Invalidate process logic
   };
-
   const search = () => {
     console.log("Search function logic here");
     // Search functionality logic
   };
-
   const changeSelect = (item) => {
     if (item === '1') {
       setDisableDate(false);
@@ -60,13 +53,87 @@ const PsReportingComponent = () => {
       setDisableDate(true);
     }
   };
-
   const validateDate = () => {
     const startDate = new Date(fromDate);
     const endDate = new Date(throughDate);
     setValidateError(endDate < startDate);
   };
-
+  return {
+    orderToInvalidate,
+    setOrderToInvalidate,
+    inValidBtnEnable,
+    setInValidBtnEnable,
+    loggedTenant,
+    setLoggedTenant,
+    togglingTenant,
+    setTogglingTenant,
+    hasAccess,
+    setHasAccess,
+    hasSuperAccess,
+    setHasSuperAccess,
+    fromDate,
+    setFromDate,
+    throughDate,
+    setThroughDate,
+    busy,
+    setBusy,
+    dateFilterSelection,
+    setDateFilterSelection,
+    referencenoFilterSelection,
+    setReferencenoFilterSelection,
+    filterSection,
+    setFilterSection,
+    disableDate,
+    setDisableDate,
+    serviceGrid,
+    setServiceGrid,
+    validateError,
+    setValidateError,
+    inValidateConfirm,
+    inValidateProcess,
+    search,
+    changeSelect,
+    validateDate,
+  };
+};
+const PsReportingComponent = () => {
+  const {
+    orderToInvalidate,
+    setOrderToInvalidate,
+    inValidBtnEnable,
+    setInValidBtnEnable,
+    loggedTenant,
+    setLoggedTenant,
+    togglingTenant,
+    setTogglingTenant,
+    hasAccess,
+    setHasAccess,
+    hasSuperAccess,
+    setHasSuperAccess,
+    fromDate,
+    setFromDate,
+    throughDate,
+    setThroughDate,
+    busy,
+    setBusy,
+    dateFilterSelection,
+    setDateFilterSelection,
+    referencenoFilterSelection,
+    setReferencenoFilterSelection,
+    filterSection,
+    setFilterSection,
+    disableDate,
+    setDisableDate,
+    serviceGrid,
+    setServiceGrid,
+    validateError,
+    setValidateError,
+    inValidateConfirm,
+    inValidateProcess,
+    search,
+    changeSelect,
+    validateDate,
+  } = usePsReportingLogic();
   return (
     <div>
         <h2>Ps Reporting Component</h2>
@@ -74,5 +141,4 @@ const PsReportingComponent = () => {
     </div>
   );
 };
-
 export default PsReportingComponent;
