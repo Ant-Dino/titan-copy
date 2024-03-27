@@ -1,7 +1,4 @@
-﻿"use strict";
-
 import React, { useState, useEffect } from 'react';
-
 const PsReportingComponent = () => {
     const [orderToInvalidate, setOrderToInvalidate] = useState([]);
     const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
@@ -37,7 +34,6 @@ const PsReportingComponent = () => {
         // For demonstration, we'll just simulate changing state
         setLoggedTenant("Simulated Tenant Name");
         setTogglingTenant("Simulated Tenant Name");
-
         // Simulate role check
         const activityright = "Admin"; // This value would come from backend or cookie
         if (activityright === 'Admin' || activityright === 'SuperAdmin') {
@@ -47,27 +43,22 @@ const PsReportingComponent = () => {
             setHasSuperAccess(true);
         }
     }, []);
-
     const handleInvalidateConfirm = () => {
         // Confirmation logic
         console.log("Invalidate confirmed");
         // Continue to invalidate process...
     };
-
     const handleInvalidateProcess = () => {
         console.log("Processing invalidate...");
         // Invalidate logic here
     };
-
     const handleSearch = () => {
         console.log("Search...");
         // Search logic here
     };
-
     const handleChangeSelect = (item) => {
         setDisableDate(item !== '1');
     };
-
     return (
         <div>
             <h1>Ps Reporting Component</h1>
@@ -75,5 +66,4 @@ const PsReportingComponent = () => {
         </div>
     );
 };
-
 export default PsReportingComponent;
