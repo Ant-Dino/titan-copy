@@ -18,7 +18,7 @@ const PsReporting = () => {
         { 'title': 'Last 60 Days', 'value': '60' },
         { 'title': 'Last 30 Days', 'value': '30' },
         { 'title': 'Last 15 Days', 'value': '15' },
-        { 'title': 'Last 7 Days', 'value': '7' },    	
+        { 'title': 'Last 7 Days', 'value': '7' },        
         { 'title': '24 hrs', 'value': '24' },
         { 'title': 'Today', 'value': '0' }
     ]);
