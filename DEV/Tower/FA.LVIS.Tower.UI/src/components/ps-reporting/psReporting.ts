@@ -18,11 +18,14 @@ function PsReportingComponent() {
     const [filterReferenceNoSection, setFilterReferenceNoSection] = useState('0');
     const [busyRef, setBusyRef] = useState(false);
     useEffect(() => {
-        // This useEffect hook is empty, fill with your logic or remove if not needed
-    });
+        // React useEffect content would go here for any side effects
+    }, []); // Empty dependency array means this runs once on component mount
+
+    // Add any business logic or event handlers here outside of the useEffect
+
     return (
         <div>
-            {/* Your JSX goes here */}
+            {/* React component JSX goes here */}
         </div>
     );
 }
