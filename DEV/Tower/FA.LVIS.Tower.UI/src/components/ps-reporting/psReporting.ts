@@ -1,4 +1,4 @@
-"strict mode";
+"use strict";
 
 import React, { useState, useEffect } from 'react';
 
@@ -20,12 +20,19 @@ function PsReportingComponent() {
     const [disableReferenceNo, setDisableReferenceNo] = useState(true);
     const [filterReferenceNoSection, setFilterReferenceNoSection] = useState('0');
     const [busyRef, setBusyRef] = useState(false);
+    // Other state variables and functions as needed
 
     useEffect(() => {
+        // Similar to component did mount, fetch data here or perform other setup tasks
     }, []);
+
+    // Function implementations using useState and useEffect
+
+    // UI Rendering and other handler functions go here
 
     return (
         <div>
+            {/* UI Components and event handlers go here */}
         </div>
     );
 }
