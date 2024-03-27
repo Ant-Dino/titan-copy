@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-const useBusinessLogic = () => {
+const useReportingLogic = () => {
     const [orderToInvalidate, setOrderToInvalidate] = useState([]);
     const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
     const [loggedTenant, setLoggedTenant] = useState("");
@@ -72,7 +72,7 @@ const useBusinessLogic = () => {
     };
 };
 const PsReportingComponent = () => {
-    const { 
+    const {
         orderToInvalidate,
         inValidBtnEnable,
         loggedTenant,
@@ -90,7 +90,7 @@ const PsReportingComponent = () => {
         handleInvalidateProcess,
         handleSearch,
         handleChangeSelect
-    } = useBusinessLogic();
+    } = useReportingLogic();
     return (
         <div>
             <h1>Ps Reporting Component</h1>
