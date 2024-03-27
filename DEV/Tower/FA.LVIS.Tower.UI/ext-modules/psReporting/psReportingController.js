@@ -1,6 +1,7 @@
 ﻿"use strict";
 
 import React, { useState, useEffect } from 'react';
+import axios from 'axios'; // Ensure axios is imported for making HTTP requests
 
 const PsReporting = () => {
     const [orderToInvalidate, setOrderToInvalidate] = useState([]);
@@ -30,7 +31,28 @@ const PsReporting = () => {
         { 'title': 'Internal Reference Id', 'value': '4' }
     ]);
 
-    // Insert your additional states and functions here
+    // Axios functions for API endpoints will be defined here
+    // Example based on the structure of your React component (adjust URLs and parameters accordingly)
+    const fetchTenantInformation = () => {
+        return axios.get('https://api.example.com/tenant/info', {
+            headers: {
+                Authorization: `Bearer YOUR_ACCESS_TOKEN`
+            }
+        });
+    };
+
+    const invalidateOrder = (orderId) => {
+        return axios.post('https://api.example.com/orders/invalidate', {
+            orderId: orderId
+        }, {
+            headers: {
+                Authorization: `Bearer YOUR_ACCESS_TOKEN`,
+                'Content-Type': 'application/json'
+            }
+        });
+    };
+
+    // Insert your additional Axios functions here
 
     useEffect(() => {
         // Simulate fetching logged tenant information, can be replaced with actual API calls
