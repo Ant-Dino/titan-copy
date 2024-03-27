@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
+import DashboardService from '/var/folders/0b/prtqp7ps1ldgzs89qcs9pr4w0000gn/T/second-repos/job_4126/new/DEV/Tower/FA.LVIS.Tower.UI/src/services/psDashboard.service.ts';
 const DashboardComponent = () => {
   // State variables to replace $scope
   const [userInfo, setUserInfo] = useState({});
   const [beqExceptions, setBeqExceptions] = useState([]);
   const [teqExceptions, setTeqExceptions] = useState([]);
-
   // Equivalent to DashBoardCtrl.getCurrentUser()
   const getCurrentUser = () => {
-    UserInfo.getUser() // Assuming UserInfo is now an axios call or similar
+    DashboardService.getCurrentUser()
       .then(response => {
         setUserInfo(response);
         loadBEQExceptions();
@@ -20,32 +18,27 @@ const DashboardComponent = () => {
         // Error handling
       });
   };
-
   // Equivalent to DashBoardCtrl.LoadBEQExceptions() and DashBoardCtrl.LoadTEQExceptions()
   const loadBEQExceptions = () => {
-    axios.get('Dashboard/BEQException/')
+    DashboardService.loadBEQExceptions()
       .then(response => {
-        setBeqExceptions(response.data);
+        setBeqExceptions(response);
       });
   };
-
   const loadTEQExceptions = () => {
-    axios.get('Dashboard/TEQException/')
+    DashboardService.loadTEQExceptions()
       .then(response => {
-        setTeqExceptions(response.data);
+        setTeqExceptions(response);
       });
   };
-
   useEffect(() => {
     getCurrentUser();
     // Depending on requirements, you might use setInterval here to refresh data
   }, []);
-
   return (
     <div>
       {/* JSX for dashboard components based on the state */}
     </div>
   );
 };
-
 export default DashboardComponent;
