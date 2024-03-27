@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const useBusinessLogic = () => {
+const usePsReportingLogic = () => {
   const [orderToInvalidate, setOrderToInvalidate] = useState([]);
   const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
   const [loggedTenant, setLoggedTenant] = useState('');
@@ -34,34 +34,42 @@ const useBusinessLogic = () => {
   const [tenant, setTenant] = useState('');
   const [showrefnum, setShowrefnum] = useState(false);
   const [showdates, setShowdates] = useState(true);
+
   useEffect(() => {
     // Similar to componentDidMount and componentDidUpdate:
     // Your code to fetch data on component mount
     setLoggedTenant('Your logic here');
     setTogglingTenant('Your logic here');
   }, []); // The empty array causes this effect to only run on mount
+
   const inValidateConfirm = () => {
     // Confirmation logic
   };
+
   const inValidateProcess = () => {
     setBusy(true);
     // Invalidate process logic
   };
+
   const changeSelect = (item) => {
     if(item === '1') setDisableDate(false);
     else setDisableDate(true);
   };
+
   const validateDate = () => {
     // Date validation logic
     setValidateError(false);
   };
+
   const search = () => {
     setBusy(true);
     // Search logic
   };
+
   const loadRFOrder = () => {
     // Load RF Order logic
   };
+
   const switchGridInfo = (val) => {
     if (val === 'RF') {
       setTogglingTenant('RF');
@@ -72,63 +80,30 @@ const useBusinessLogic = () => {
       // columnToggle(); // Assuming columnToggle is handled inside the search/loadRFOrder functions
     }
   };
+
   return {
-    orderToInvalidate,
-    inValidBtnEnable,
-    loggedTenant,
-    togglingTenant,
-    hasAccess,
-    hasSuperAccess,
-    fromDate,
-    throughDate,
-    busy,
-    dateFilterSelection,
-    referencenoFilterSelection,
-    filterSection,
-    disableDate,
-    serviceGridData,
-    validateError,
-    tenant,
-    showrefnum,
-    showdates,
-    inValidateConfirm,
-    inValidateProcess,
-    changeSelect,
-    validateDate,
-    search,
-    loadRFOrder,
-    switchGridInfo,
+    orderToInvalidate, setOrderToInvalidate, inValidBtnEnable, setInValidBtnEnable, loggedTenant, 
+    setLoggedTenant, togglingTenant, setTogglingTenant, hasAccess, setHasAccess, hasSuperAccess, 
+    setHasSuperAccess, fromDate, setFromDate, throughDate, setThroughDate, busy, setBusy, 
+    dateFilterSelection, setDateFilterSelection, referencenoFilterSelection, 
+    setReferencenoFilterSelection, filterSection, setFilterSection, disableDate, setDisableDate, 
+    serviceGridData, setServiceGridData, validateError, setValidateError, tenant, setTenant, 
+    showrefnum, setShowrefnum, showdates, setShowdates, inValidateConfirm, inValidateProcess, 
+    changeSelect, validateDate, search, loadRFOrder, switchGridInfo
   };
 };
 
 const PsReportingComponent = () => {
   const {
-    orderToInvalidate,
-    inValidBtnEnable,
-    loggedTenant,
-    togglingTenant,
-    hasAccess,
-    hasSuperAccess,
-    fromDate,
-    throughDate,
-    busy,
-    dateFilterSelection,
-    referencenoFilterSelection,
-    filterSection,
-    disableDate,
-    serviceGridData,
-    validateError,
-    tenant,
-    showrefnum,
-    showdates,
-    inValidateConfirm,
-    inValidateProcess,
-    changeSelect,
-    validateDate,
-    search,
-    loadRFOrder,
-    switchGridInfo,
-  } = useBusinessLogic();
+    orderToInvalidate, setOrderToInvalidate, inValidBtnEnable, setInValidBtnEnable, loggedTenant, 
+    setLoggedTenant, togglingTenant, setTogglingTenant, hasAccess, setHasAccess, hasSuperAccess, 
+    setHasSuperAccess, fromDate, setFromDate, throughDate, setThroughDate, busy, setBusy, 
+    dateFilterSelection, setDateFilterSelection, referencenoFilterSelection, 
+    setReferencenoFilterSelection, filterSection, setFilterSection, disableDate, setDisableDate, 
+    serviceGridData, setServiceGridData, validateError, setValidateError, tenant, setTenant, 
+    showrefnum, setShowrefnum, showdates, setShowdates, inValidateConfirm, inValidateProcess, 
+    changeSelect, validateDate, search, loadRFOrder, switchGridInfo
+  } = usePsReportingLogic();
 
   return (
     <div>
