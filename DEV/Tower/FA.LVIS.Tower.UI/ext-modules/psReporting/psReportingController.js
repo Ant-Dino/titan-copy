@@ -1,7 +1,4 @@
-"use strict";
-
 import React, { useState, useEffect } from 'react';
-
 function PsReportingComponent() {
     const [orderToInvalidate, setOrderToInvalidate] = useState([]);
     const [inValidBtnEnable, setInValidBtnEnable] = useState(true);
@@ -20,22 +17,16 @@ function PsReportingComponent() {
     const [disableReferenceNo, setDisableReferenceNo] = useState(true);
     const [filterReferenceNoSection, setFilterReferenceNoSection] = useState('0');
     const [busyRef, setBusyRef] = useState(false);
-    // Other state variables and functions as needed
-
     useEffect(() => {
-        // Similar to component did mount, fetch data here or perform other setup tasks
-    }, []);
+        // React useEffect content would go here for any side effects
+    }, []); // Empty dependency array means this runs once on component mount
 
-    // Replace functions like inValidateConfirm, inValidateProcess, search, changeSelect, ValidateDate 
-    // with appropriate implementations using useState and useEffect
-
-    // UI Rendering and other handler functions go here
+    // Add any business logic or event handlers here outside of the useEffect
 
     return (
         <div>
-            {/* UI Components and event handlers go here */}
+            {/* React component JSX goes here */}
         </div>
     );
 }
-
 export default PsReportingComponent;
